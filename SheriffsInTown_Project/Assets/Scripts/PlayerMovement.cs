@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Riferimenti")]
-    [SerializeField] CharacterController controller;
-    [SerializeField] Camera cam;
+    //Riferimenti
+    CharacterController controller;
+    Camera cam;
     
     [Header("Parametri movimento")]
-    [SerializeField] float _baseMoveSpeed;
+    [SerializeField] float _baseMoveSpeed = 10f;
     public float speedMultiplier = 1f;
 
     Vector3 input;
