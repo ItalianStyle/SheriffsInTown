@@ -60,4 +60,9 @@ public class PlayerMovement : MonoBehaviour
         //Se il gioco non e' in pausa, questo componente e' attivo
         enabled = newGameState == GameState.Gameplay;
     }
+
+    public void FaceCamera()
+    {
+        transform.rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0);
+    }
 }
