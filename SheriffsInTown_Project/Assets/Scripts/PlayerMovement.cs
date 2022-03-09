@@ -11,6 +11,11 @@ public class PlayerMovement : MonoBehaviour
     Camera cam; //Utilizzato per rendere il movimento dipendente dall'orientamento della camera
     CharacterController controller; //Utilizzato per muovere il personaggio
 
+    private void OnEnable()
+    {
+        PlayerShooting.OnShotFired += (isPlayer) => { if (isPlayer) FaceCamera(); };
+    }
+
     private void Start()
     {
         //Prendo i riferimenti necessari
@@ -25,13 +30,15 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        Vector3 gravity = new Vector3(0, -9.81f, 0);
+
         //Salvo gli input del giocatore nel vettore
         input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
 
         //Determino l'orientamento di movimento del giocatore facendo ruotare di "cam.transform.eulerAngles.y" gradi il vettore di input
         Vector3 moveDir = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * input;
 
-        controller.Move(moveDir.normalized * movementSpeed * Time.deltaTime);
+        controller.Move(moveDir.normalized * movementSpeed * Time.deltaTime + gravity * Time.deltaTime);
 
         //Faccio ruotare il personaggio solo quando il giocatore preme uno o piu tasti di input di movimento
         if (input.magnitude >= .1f)
@@ -52,6 +59,8 @@ public class PlayerMovement : MonoBehaviour
     {
         //Annullo l'ascolto all'evento della pausa di gioco
         GameStateManager.Instance.OnGameStateChanged -= OnGameStateChanged;
+
+        PlayerShooting.OnShotFired -= (isPlayer) => { if (isPlayer) FaceCamera(); };
         //GameManager.PlayerWonGame -= () => enabled = false;
     }
 
