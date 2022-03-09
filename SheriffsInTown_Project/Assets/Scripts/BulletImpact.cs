@@ -9,7 +9,7 @@ public class BulletImpact : MonoBehaviour
     {
         if (collision.transform.CompareTag("Enemy"))
         {
-            collision.transform.GetComponent<Health>().DecreaseHealth(Damage);
+            collision.transform.GetComponent<PlayerHealthSystem>().SetCurrentHealth(20,true);
         }
         Destroy(gameObject);
     }
