@@ -22,6 +22,9 @@ namespace SheriffsInTown
         Vector3 jumpInput = Vector3.zero;   //Utilizzato per muovere il personaggio in verticale per il salto
         Vector3 gravity = new Vector3(0, -9.81f, 0);    //Vettore di gravità standard
 
+        bool isShotButtonPressed = false;
+        bool isJumpButtonPressed = false;
+
         Camera cam; //Utilizzato per rendere il movimento dipendente dall'orientamento della camera
         CharacterController controller; //Utilizzato per muovere il personaggio
 
@@ -37,32 +40,22 @@ namespace SheriffsInTown
             //GameManager.PlayerWonGame += () => enabled = false;
         }
 
-        void FixedUpdate()
-        {
-            MovePlayer();
-            Jump();
-        }
-
-        private void Jump()
-        {
-            if (Input.GetKeyDown(KeyCode.Space) && controller.isGrounded)
-            {
-                //Definisco il vettore massimo per saltare
-                jumpInput.y = jumpForce;
-            }
-            if (jumpInput.y > 0)
-            {
-                //Decremento il vettore di salto nel tempo
-                jumpInput += gravity * Time.deltaTime;
-                //Applico il vettore risultante
-                controller.Move(jumpInput * Time.deltaTime);
-            }
-        }
-
-        private void MovePlayer()
+        private void Update()
         {
             //Salvo gli input del giocatore nel vettore
             input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+
+            isShotButtonPressed = Input.GetKey(KeyCode.Mouse0);
+            isJumpButtonPressed = Input.GetKeyDown(KeyCode.Space);
+        }
+
+        void FixedUpdate()
+        {
+            /// <summary>
+            /// Qui vengono gestite due meccaniche:
+            /// 1. Movimento del personaggio sul piano orizzontale con relativa rotazione
+            /// 2. Salto del personaggio
+            /// </summary>
 
             //Determino l'orientamento di movimento del giocatore facendo ruotare di "cam.transform.eulerAngles.y" gradi il vettore di input
             Vector3 moveDir = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * input;
@@ -70,7 +63,7 @@ namespace SheriffsInTown
             controller.Move(moveDir.normalized * movementSpeed * Time.deltaTime + gravity * Time.deltaTime);
 
             //Faccio ruotare il personaggio solo quando il giocatore preme uno o piu tasti di input di movimento
-            if (input.magnitude >= .1f && !Input.GetKey(KeyCode.Mouse0))
+            if (input.magnitude >= .1f && !isShotButtonPressed)
             {
                 //Stabilisco quanto e' l'angolo presente tra il movimento frontale e laterale
                 float targetRotationAngle = Mathf.Atan2(input.x, input.z) * Mathf.Rad2Deg + cam.transform.eulerAngles.y;
@@ -82,13 +75,27 @@ namespace SheriffsInTown
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, smoothRotationFactor);
             }
             //Il giocatore ruota verso la direzione della camera quando spara
-            else if(Input.GetKey(KeyCode.Mouse0))
+            else if (isShotButtonPressed)
             {
                 //Salvo la rotazione da raggiungere in una variabile di appoggio
                 Quaternion targetRotation = Quaternion.Euler(0, cam.transform.rotation.eulerAngles.y, 0);
 
                 //Smorzo la rotazione del personaggio dalla rotazione attuale a quella da raggiungere
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 1);
+            }
+
+            //Meccanica di salto
+            if (isJumpButtonPressed && controller.isGrounded)
+            {
+                //Definisco il vettore massimo per saltare
+                jumpInput.y = jumpForce;
+            }
+            if (jumpInput.y > 0)
+            {
+                //Decremento il vettore di salto nel tempo
+                jumpInput += gravity * Time.deltaTime;
+                //Applico il vettore risultante
+                controller.Move(jumpInput * Time.deltaTime);
             }
         }
 
