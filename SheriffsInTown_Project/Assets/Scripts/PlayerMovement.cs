@@ -52,7 +52,9 @@ namespace SheriffsInTown
             }
             if (jumpInput.y > 0)
             {
+                //Decremento il vettore di salto nel tempo
                 jumpInput += gravity * Time.deltaTime;
+                //Applico il vettore risultante
                 controller.Move(jumpInput * Time.deltaTime);
             }
         }
