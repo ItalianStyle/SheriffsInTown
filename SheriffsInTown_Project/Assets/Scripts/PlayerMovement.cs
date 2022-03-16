@@ -1,13 +1,25 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("Movimento")]
     [Tooltip("Velocita' di movimento del personaggio")]
     [SerializeField] float movementSpeed = 10f;
+
+    [Header("Rotazione")]
     [Tooltip("Quanto velocemente ruota il personaggio verso una nuova direzione")]
     [SerializeField] [Range(0f,1f)] float smoothRotationFactor = .1f;
-    Vector3 input;  //Usato per memorizzare i valori di input di movimento del giocatore
 
+    [Header("Salto")]
+    [Tooltip("Quanta forza usa il personaggio per saltare")]
+    [SerializeField] [Min(.1f)] float jumpForce = .1f;
+
+    Vector3 input;  //Usato per memorizzare i valori di input di movimento del giocatore
+    Vector3 jumpInput = Vector3.zero;   //Utilizzato per muovere il personaggio in verticale per il salto
+    Vector3 gravity = new Vector3(0, -9.81f, 0);    //Vettore di gravità standard
+    
     Camera cam; //Utilizzato per rendere il movimento dipendente dall'orientamento della camera
     CharacterController controller; //Utilizzato per muovere il personaggio
 
@@ -30,8 +42,25 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        Vector3 gravity = new Vector3(0, -9.81f, 0);
+        MovePlayer();
+        Jump();
+    }
 
+    private void Jump()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && controller.isGrounded)
+        {
+            jumpInput.y = jumpForce;
+        }
+        if (jumpInput.y > 0)
+        {
+            jumpInput += gravity * Time.deltaTime;
+            controller.Move(jumpInput * Time.deltaTime);
+        }
+    }
+
+    private void MovePlayer()
+    {
         //Salvo gli input del giocatore nel vettore
         input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
 
@@ -52,7 +81,6 @@ public class PlayerMovement : MonoBehaviour
             //Smorzo la rotazione del personaggio dalla rotazione attuale a quella da raggiungere
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, smoothRotationFactor);
         }
-
     }
 
     private void OnDestroy()
