@@ -234,6 +234,7 @@ GameObject:
   - component: {fileID: 4889762482718996969}
   - component: {fileID: 2468511215161330217}
   - component: {fileID: 2686439966367275902}
+  - component: {fileID: 2102027095}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -354,15 +355,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32b981854d6e8f247966353996d26c8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spreadLimit: 2
-  attackRange: 20
+  _attackRange: 0
   damage: 1
   reloadTime: 0.5
   hitEffectPrefab: {fileID: 9081267665000915068, guid: 66aaee2355aa70940909f0ac7d20acc9, type: 3}
-  reticle: {fileID: 0}
-  layerMask:
+  _layerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 0
 --- !u!114 &2686439966367275902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,6 +376,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   _currentHealth: 100
+--- !u!114 &2102027095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4889762482718996979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d64abb01f3ebbcc49a3e8e3d1bf5a95e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  reticle: {fileID: 0}
 --- !u!1 &6350369108160587619
 GameObject:
   m_ObjectHideFlags: 0
