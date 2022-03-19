@@ -5,13 +5,13 @@ using Random = UnityEngine.Random;
 
 public class PlayerShooting : MonoBehaviour
 {
-    public static event Action<bool> OnShotFired = delegate { };
+    //public static event Action<bool> OnShotFired = delegate { };
 
-    [Tooltip("Quanto e' largo il cerchio di accuratezza")]
-    [SerializeField] float spreadLimit = 2.0f;
+    //[Tooltip("Quanto e' largo il cerchio di accuratezza")]
+    //[SerializeField] float spreadLimit = 2.0f;
     
     [Tooltip("Distanza massima che raggiunge lo sparo")]
-    [SerializeField] float attackRange;
+    [SerializeField] float _attackRange;
     [Tooltip("Danno inflitto")]
     [SerializeField] int damage;
 
@@ -20,9 +20,17 @@ public class PlayerShooting : MonoBehaviour
 
     [SerializeField] ParticleSystem hitEffectPrefab = null;
 
+    [Tooltip("Quali layer puo' colpire il giocatore con il raycast?")]
+    [SerializeField] LayerMask _layerMask;
+
+    public float AttackRange => _attackRange;
+    public LayerMask LayerMask => _layerMask;
+
     bool canShoot = true;   //Quando il giocatore e' pronto a sparare
 
     Camera cam;
+    Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+                         //+ new Vector3(Random.insideUnitCircle.x, Random.insideUnitCircle.y, 0) * spreadLimit;
 
     private void Start()
     {
@@ -46,23 +54,23 @@ public class PlayerShooting : MonoBehaviour
     }
 
     void Shoot()
-    {
-        Vector3 direction = new Vector3(Screen.width / 2, Screen.height / 2, 0) + 
-            new Vector3(Random.insideUnitCircle.x, Random.insideUnitCircle.y, 0) * spreadLimit;
-
-        Ray ray = cam.ViewportPointToRay(direction);
+    {                            
+        Ray ray = cam.ScreenPointToRay(screenCenter);
         
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, attackRange) && hit.collider.TryGetComponent(out EnemyHealthSystem healthSys))
+        if (Physics.Raycast(ray, out hit, _attackRange, _layerMask))
         {
-            ParticleSystem effect = Instantiate(hitEffectPrefab);
+            //http://codesaying.com/understanding-screen-point-world-point-and-viewport-point-in-unity3d/
+            if (hit.collider.TryGetComponent(out EnemyHealthSystem healthSys))
+            {
+                ParticleSystem effect = Instantiate(hitEffectPrefab);
 
-            effect.transform.position = hit.point;
-            effect.Play();
-            healthSys.TakeDamage(damage);
+                effect.transform.position = hit.point;
+                effect.Play();
+                healthSys.TakeDamage(damage);
+            }
+            //OnShotFired?.Invoke(CompareTag("Player"));
         }
-        
-        OnShotFired?.Invoke(CompareTag("Player"));
     }
 }
