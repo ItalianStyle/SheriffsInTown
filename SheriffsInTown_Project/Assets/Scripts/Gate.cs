@@ -1,18 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class Gate : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public static event Action OnPlayerNearGate = delegate { };
+    public static event Action OnPlayerLeftGate = delegate { };
+
+    private void OnTriggerEnter(Collider other)
     {
-        
+        if(other.CompareTag("Player"))
+        {
+            OnPlayerNearGate?.Invoke();
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerExit(Collider other)
     {
-        
+        if(other.CompareTag("Player"))
+        {
+            OnPlayerLeftGate?.Invoke();
+        }
     }
 }
