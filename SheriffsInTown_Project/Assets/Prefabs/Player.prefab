@@ -361,7 +361,7 @@ MonoBehaviour:
   hitEffectPrefab: {fileID: 9081267665000915068, guid: 66aaee2355aa70940909f0ac7d20acc9, type: 3}
   _layerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
 --- !u!114 &2686439966367275902
 MonoBehaviour:
   m_ObjectHideFlags: 0
