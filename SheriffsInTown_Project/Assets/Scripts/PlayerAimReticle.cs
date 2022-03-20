@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerAim : MonoBehaviour
+public class PlayerAimReticle : MonoBehaviour
 {
     [Tooltip("Mirino da utilizzare per farlo apparire quando il giocatore mira ad un punto entro il raggio")]
     [SerializeField] Image reticle;
-
 
     Camera cam;
     PlayerShooting playerShooting;  //Serve per prendere i valori di range e layermask
