@@ -9,6 +9,7 @@ namespace SheriffsInTown
         [Header("Movimento")]
         [Tooltip("Velocita' di movimento del personaggio")]
         [SerializeField] float movementSpeed = 10f;
+        float movementSpeedReference;
 
         [Header("Rotazione")]
         [Tooltip("Quanto velocemente ruota il personaggio verso una nuova direzione")]
@@ -34,6 +35,11 @@ namespace SheriffsInTown
             //Prendo i riferimenti necessari
             cam = Camera.main;
             controller = GetComponent<CharacterController>();
+
+            movementSpeedReference = movementSpeed;
+
+            SpecialSkill.OnActivatedSkill += (skill) => BoostMovementSpeed(skill);
+            SpecialSkill.OnFinishedSkill += ResetMovementSpeed;
 
             //Chiamo il metodo quando il giocatore mette in pausa il gioco o lo riprende
             GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
@@ -115,6 +121,9 @@ namespace SheriffsInTown
 
         private void OnDestroy()
         {
+            SpecialSkill.OnActivatedSkill -= (skill) => BoostMovementSpeed(skill);
+            SpecialSkill.OnFinishedSkill -= ResetMovementSpeed;
+
             //Annullo l'ascolto all'evento della pausa di gioco
             GameStateManager.Instance.OnGameStateChanged -= OnGameStateChanged;
 
@@ -130,6 +139,16 @@ namespace SheriffsInTown
                 canMove = true;
                 movementSpeed = 10;
             };
+        }
+
+        void ResetMovementSpeed()
+        {
+            movementSpeed = movementSpeedReference;
+        }
+
+        private void BoostMovementSpeed(SpecialSkill skill)
+        {
+            movementSpeed = skill.NewMovementSpeed;
         }
 
         private void OnGameStateChanged(GameState newGameState)
