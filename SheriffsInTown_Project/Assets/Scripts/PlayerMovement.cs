@@ -24,6 +24,7 @@ namespace SheriffsInTown
 
         bool isShotButtonPressed = false;
         bool isJumpButtonPressed = false;
+        bool canMove = true;
 
         Camera cam; //Utilizzato per rendere il movimento dipendente dall'orientamento della camera
         CharacterController controller; //Utilizzato per muovere il personaggio
@@ -38,15 +39,28 @@ namespace SheriffsInTown
             GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
 
             //GameManager.PlayerWonGame += () => enabled = false;
+            PlayerShooting.OnPlayerStartReloading += () =>
+            {
+                canMove = false;
+                movementSpeed = 0;
+            };
+            PlayerShooting.OnPlayerFinishedReloading += () =>
+            {
+                canMove = true;
+                movementSpeed = 10;
+            };
         }
 
         private void Update()
         {
-            //Salvo gli input del giocatore nel vettore
-            input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+            if (canMove)
+            {
+                //Salvo gli input del giocatore nel vettore
+                input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
 
-            isShotButtonPressed = Input.GetKey(KeyCode.Mouse0);
-            isJumpButtonPressed = Input.GetKeyDown(KeyCode.Space);
+                isShotButtonPressed = Input.GetKey(KeyCode.Mouse0);
+                isJumpButtonPressed = Input.GetKeyDown(KeyCode.Space);
+            }
         }
 
         void FixedUpdate()
@@ -105,6 +119,17 @@ namespace SheriffsInTown
             GameStateManager.Instance.OnGameStateChanged -= OnGameStateChanged;
 
             //GameManager.PlayerWonGame -= () => enabled = false;
+
+            PlayerShooting.OnPlayerStartReloading -= () =>
+            {
+                canMove = false;
+                movementSpeed = 0;
+            };
+            PlayerShooting.OnPlayerFinishedReloading -= () =>
+            {
+                canMove = true;
+                movementSpeed = 10;
+            };
         }
 
         private void OnGameStateChanged(GameState newGameState)
