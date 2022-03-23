@@ -65,7 +65,15 @@ namespace SheriffsInTown
                 input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
 
                 isShotButtonPressed = Input.GetKey(KeyCode.Mouse0);
-                isJumpButtonPressed = Input.GetKeyDown(KeyCode.Space);
+                //Meccanica di salto
+                if (controller.isGrounded)
+                {
+                    if (Input.GetKeyDown(KeyCode.Space))
+                    {
+                        //Definisco il vettore massimo per saltare
+                        jumpInput.y = jumpForce;
+                    }
+                }
             }
         }
 
@@ -104,12 +112,7 @@ namespace SheriffsInTown
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 1);
             }
 
-            //Meccanica di salto
-            if (isJumpButtonPressed && controller.isGrounded)
-            {
-                //Definisco il vettore massimo per saltare
-                jumpInput.y = jumpForce;
-            }
+            
             if (jumpInput.y > 0)
             {
                 //Decremento il vettore di salto nel tempo
