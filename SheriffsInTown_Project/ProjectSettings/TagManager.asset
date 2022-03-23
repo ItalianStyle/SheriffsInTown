@@ -8,6 +8,8 @@ TagManager:
   - Ground
   - Gate
   - Key
+  - PlayBtn
+  - ExitBtn
   layers:
   - Default
   - TransparentFX
