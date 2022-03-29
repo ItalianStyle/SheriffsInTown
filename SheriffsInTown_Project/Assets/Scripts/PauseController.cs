@@ -12,12 +12,13 @@ public class PauseController : MonoBehaviour
 
     void Update()
     {
+        //Metti in pausa il gioco se non si e' gia' in pausa ed il giocatore ha premuto il tasto Esc
         if (isGameRunning && Input.GetKeyDown(KeyCode.Escape))
         {
             GameState currentGameState = GameStateManager.Instance.CurrentGameState;
-            GameState newGameState = currentGameState == GameState.Gameplay ?
-                GameState.Paused
-                : GameState.Gameplay;
+
+            //Invertiamo lo stato di gioco
+            GameState newGameState = currentGameState == GameState.Gameplay ? GameState.Paused : GameState.Gameplay;
 
             GameStateManager.Instance.SetState(newGameState);
         }
