@@ -5,6 +5,12 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance = null;
 
+    //Riferimento al player
+    GameObject player;
+
+    //Vite a disposizione del giocatore prima di perdere la partita
+    int totalLives = 3;
+
     private void OnEnable()
     {
         if (instance != null && instance != this)
@@ -24,7 +30,8 @@ public class GameManager : MonoBehaviour
         switch(scene.buildIndex)
         {
             case 1:
-                PlayerHealthSystem.OnPlayerDead += () => SceneManager.LoadScene(0);
+                player = GameObject.FindGameObjectWithTag("Player");
+                PlayerHealthSystem.OnPlayerDead += HandlePlayerDeath;
                 break;
         }
     }
@@ -33,6 +40,20 @@ public class GameManager : MonoBehaviour
     {
         //Inizializzo lo stato di gioco quando comincia il gioco
         GameStateManager.Instance.SetState(GameState.Gameplay);
+    }
+
+    void HandlePlayerDeath()
+    {
+        totalLives--;
+        if (totalLives > 0)
+        {
+            //Respawna
+            
+        }
+        else
+        {
+            //Gioco perso
+        }
     }
 
     private void OnDisable()
