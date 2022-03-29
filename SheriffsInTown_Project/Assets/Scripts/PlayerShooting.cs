@@ -70,7 +70,7 @@ public class PlayerShooting : MonoBehaviour
     public float AttackRange => _currentAttackRange;
     public LayerMask LayerMask => _layerMask;
 
-    bool canShoot = true;   //Quando la pistola può sparare
+    bool canShoot = true;   //Quando la pistola puo' sparare
     bool isSkillActive = true;
 
     ShootingMode CurrentShootingMode => shootingModes[_currentShootingModeIndex];
