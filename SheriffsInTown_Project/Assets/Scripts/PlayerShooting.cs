@@ -91,6 +91,13 @@ public class PlayerShooting : MonoBehaviour
 
         SpecialSkill.OnActivatedSkill += (skill) => BoostShooting(skill);
         SpecialSkill.OnFinishedSkill += ResetShooting;
+
+        GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
+    }
+
+    private void OnGameStateChanged(GameState newGameState)
+    {
+        enabled = newGameState == GameState.Gameplay;
     }
 
     void Update()
@@ -120,7 +127,6 @@ public class PlayerShooting : MonoBehaviour
             }
             else
                 StartCoroutine(Reload(isPlayerReloading: false));
-
         }
     }
 
@@ -128,6 +134,8 @@ public class PlayerShooting : MonoBehaviour
     {
         SpecialSkill.OnActivatedSkill -= (skill) => BoostShooting(skill);
         SpecialSkill.OnFinishedSkill -= ResetShooting;
+
+        GameStateManager.Instance.OnGameStateChanged -= OnGameStateChanged;
     }
 
     void BoostShooting(SpecialSkill skill)
@@ -201,6 +209,8 @@ public class PlayerShooting : MonoBehaviour
             ParticleSystem effect = Instantiate(hitEffectPrefab);
 
             effect.transform.position = hit.point;
+            Destroy(effect.gameObject, effect.main.duration);
+
             //http://codesaying.com/understanding-screen-point-world-point-and-viewport-point-in-unity3d/
             if (hit.collider.TryGetComponent(out EnemyHealthSystem healthSys))
             {
