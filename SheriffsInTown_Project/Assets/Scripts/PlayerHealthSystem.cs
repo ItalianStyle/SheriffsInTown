@@ -44,7 +44,7 @@ public class PlayerHealthSystem : MonoBehaviour
         {
             //RespawnSystem.instance.ReloadScene();
             OnPlayerDead?.Invoke();
-            Destroy(gameObject);
+            gameObject.SetActive(false);
 
             _currentHealth = maxHealth;
         }
