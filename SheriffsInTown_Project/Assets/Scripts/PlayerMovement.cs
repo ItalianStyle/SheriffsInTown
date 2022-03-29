@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using UnityEngine;
 
 namespace SheriffsInTown
@@ -24,7 +22,6 @@ namespace SheriffsInTown
         Vector3 gravity = new Vector3(0, -9.81f, 0);    //Vettore di gravità standard
 
         bool isShotButtonPressed = false;
-        bool isJumpButtonPressed = false;
         bool canMove = true;
 
         Camera cam; //Utilizzato per rendere il movimento dipendente dall'orientamento della camera
@@ -38,23 +35,15 @@ namespace SheriffsInTown
 
             movementSpeedReference = movementSpeed;
 
-            SpecialSkill.OnActivatedSkill += (skill) => BoostMovementSpeed(skill);
-            SpecialSkill.OnFinishedSkill += ResetMovementSpeed;
+            SpecialSkill.OnActivatedSkill += (skill) => SetPlayerMovement(skill.NewMovementSpeed);
+            SpecialSkill.OnFinishedSkill += () => SetPlayerMovement(movementSpeedReference);
 
             //Chiamo il metodo quando il giocatore mette in pausa il gioco o lo riprende
             GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
 
             //GameManager.PlayerWonGame += () => enabled = false;
-            PlayerShooting.OnPlayerStartReloading += () =>
-            {
-                canMove = false;
-                movementSpeed = 0;
-            };
-            PlayerShooting.OnPlayerFinishedReloading += () =>
-            {
-                canMove = true;
-                movementSpeed = 10;
-            };
+            PlayerShooting.OnPlayerStartReloading += () => SetPlayerMovement(0);
+            PlayerShooting.OnPlayerFinishedReloading += () => SetPlayerMovement(movementSpeedReference);
         }
 
         private void Update()
@@ -80,9 +69,7 @@ namespace SheriffsInTown
         void FixedUpdate()
         {
             /// <summary>
-            /// Qui vengono gestite due meccaniche:
-            /// 1. Movimento del personaggio sul piano orizzontale con relativa rotazione
-            /// 2. Salto del personaggio
+            /// Qui viene gestito il movimento del personaggio sul piano orizzontale con relativa rotazione
             /// </summary>
 
             //Determino l'orientamento di movimento del giocatore facendo ruotare di "cam.transform.eulerAngles.y" gradi il vettore di input
@@ -111,8 +98,8 @@ namespace SheriffsInTown
                 //Smorzo la rotazione del personaggio dalla rotazione attuale a quella da raggiungere
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 1);
             }
-
             
+            //Applico una gravita' artificiale al personaggio quando salta
             if (jumpInput.y > 0)
             {
                 //Decremento il vettore di salto nel tempo
@@ -124,45 +111,28 @@ namespace SheriffsInTown
 
         private void OnDestroy()
         {
-            SpecialSkill.OnActivatedSkill -= (skill) => BoostMovementSpeed(skill);
-            SpecialSkill.OnFinishedSkill -= ResetMovementSpeed;
+            SpecialSkill.OnActivatedSkill -= (skill) => SetPlayerMovement(skill.NewMovementSpeed);
+            SpecialSkill.OnFinishedSkill -= () => SetPlayerMovement(movementSpeedReference);
 
             //Annullo l'ascolto all'evento della pausa di gioco
             GameStateManager.Instance.OnGameStateChanged -= OnGameStateChanged;
 
             //GameManager.PlayerWonGame -= () => enabled = false;
 
-            PlayerShooting.OnPlayerStartReloading -= () =>
-            {
-                canMove = false;
-                movementSpeed = 0;
-            };
-            PlayerShooting.OnPlayerFinishedReloading -= () =>
-            {
-                canMove = true;
-                movementSpeed = 10;
-            };
+            PlayerShooting.OnPlayerStartReloading -= () => SetPlayerMovement(0);
+            PlayerShooting.OnPlayerFinishedReloading -= () => SetPlayerMovement(movementSpeedReference);
         }
 
-        void ResetMovementSpeed()
+        private void SetPlayerMovement(float newMovementSpeed)
         {
-            movementSpeed = movementSpeedReference;
-        }
-
-        private void BoostMovementSpeed(SpecialSkill skill)
-        {
-            movementSpeed = skill.NewMovementSpeed;
+            canMove = newMovementSpeed > 0;
+            movementSpeed = newMovementSpeed;
         }
 
         private void OnGameStateChanged(GameState newGameState)
         {
             //Se il gioco non e' in pausa, questo componente e' attivo
             enabled = newGameState == GameState.Gameplay;
-        }
-
-        public void FaceCamera()
-        {
-            transform.rotation = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0);
         }
     }
 }
