@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance = null;
+
     private void OnEnable()
     {
         if (instance != null && instance != this)
@@ -22,10 +23,16 @@ public class GameManager : MonoBehaviour
     {
         switch(scene.buildIndex)
         {
-            case 0:
+            case 1:
                 PlayerHealthSystem.OnPlayerDead += () => SceneManager.LoadScene(0);
                 break;
         }
+    }
+
+    private void Start()
+    {
+        //Inizializzo lo stato di gioco quando comincia il gioco
+        GameStateManager.Instance.SetState(GameState.Gameplay);
     }
 
     private void OnDisable()
