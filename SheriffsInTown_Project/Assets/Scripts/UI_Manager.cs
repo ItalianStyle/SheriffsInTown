@@ -11,6 +11,9 @@ public class UI_Manager : MonoBehaviour
     //Riferimento al tasto per uscire dal gioco/dal menù di pausa
     Button exitBtn;
 
+    //Riferimento alla barra HP del personaggio
+    Image hpBar;
+
     //Riferimento al pannello della pausa
     CanvasGroup pausePanel;
 
@@ -44,6 +47,25 @@ public class UI_Manager : MonoBehaviour
         if(SceneManager.GetActiveScene().buildIndex == 1)
         {
             GameStateManager.Instance.OnGameStateChanged -= HandlePausePanel;
+            PlayerHealthSystem.OnPlayerDamaged -= UpdateHP_Bar;
+            PlayerHealthSystem.OnPlayerHealed -= UpdateHP_Bar;
+        }
+    }
+
+    //Prende i riferimenti in base alla scena attiva
+    private void GetReferences(Scene scene)
+    {
+        playBtn = GameObject.FindGameObjectWithTag("PlayBtn").GetComponent<Button>();
+        exitBtn = GameObject.FindGameObjectWithTag("ExitBtn").GetComponent<Button>();
+        switch (scene.buildIndex)
+        {
+            case 0:
+                break;
+
+            case 1:
+                pausePanel = GameObject.Find("UI/PausePanel").GetComponent<CanvasGroup>();
+                hpBar = GameObject.Find("UI/HUD_Panel/HP_Bar_Background/HP_Bar").GetComponent<Image>();
+                break;
         }
     }
 
@@ -75,8 +97,16 @@ public class UI_Manager : MonoBehaviour
                     HandleCursor(newGameState);
                     HandlePausePanel(newGameState);
                 } ;
+
+                PlayerHealthSystem.OnPlayerDamaged += UpdateHP_Bar;
+                PlayerHealthSystem.OnPlayerHealed += UpdateHP_Bar;
                 break;
         }
+    }
+
+    private void UpdateHP_Bar(int currentHealth, int maxHealth)
+    {
+        hpBar.fillAmount = currentHealth / (float) maxHealth;
     }
 
     //Mostra e libera il cursore quando il gioco e' in pausa e viceversa
@@ -91,22 +121,6 @@ public class UI_Manager : MonoBehaviour
     private void HandlePausePanel(GameState newGameState)
     {
         SetCanvasGroup(pausePanel, newGameState is GameState.Paused);
-    }
-
-    //Prende i riferimenti in base alla scena attiva
-    private void GetReferences(Scene scene)
-    {
-        playBtn = GameObject.FindGameObjectWithTag("PlayBtn").GetComponent<Button>();
-        exitBtn = GameObject.FindGameObjectWithTag("ExitBtn").GetComponent<Button>();
-        switch (scene.buildIndex)
-        {
-            case 0:
-                break;
-
-            case 1:
-                pausePanel = GameObject.Find("UI/PausePanel").GetComponent<CanvasGroup>();
-                break;
-        }
     }
 
     public static void SetCanvasGroup(CanvasGroup canvasGroup, bool canActive)
