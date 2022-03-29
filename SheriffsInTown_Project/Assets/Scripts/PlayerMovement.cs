@@ -1,4 +1,5 @@
 using UnityEngine;
+using Cinemachine;
 
 namespace SheriffsInTown
 {
@@ -25,12 +26,15 @@ namespace SheriffsInTown
         bool canMove = true;
 
         Camera cam; //Utilizzato per rendere il movimento dipendente dall'orientamento della camera
+        CinemachineVirtualCamera virtualCamera; //Utilizzato per disabilitarlo quando si entra in pausa
+
         CharacterController controller; //Utilizzato per muovere il personaggio
 
         private void Start()
         {
             //Prendo i riferimenti necessari
             cam = Camera.main;
+            virtualCamera = GameObject.Find("FollowPlayerCamera").GetComponent<CinemachineVirtualCamera>();
             controller = GetComponent<CharacterController>();
 
             movementSpeedReference = movementSpeed;
@@ -131,8 +135,12 @@ namespace SheriffsInTown
 
         private void OnGameStateChanged(GameState newGameState)
         {
+            bool isGamePlaying = newGameState == GameState.Gameplay;
+
+            //Disattivo il movimento della camera attorno al giocatore
+            virtualCamera.enabled = isGamePlaying;
             //Se il gioco non e' in pausa, questo componente e' attivo
-            enabled = newGameState == GameState.Gameplay;
+            enabled = isGamePlaying;
         }
     }
 }
