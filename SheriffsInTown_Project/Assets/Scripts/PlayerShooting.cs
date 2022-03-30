@@ -206,6 +206,7 @@ public class PlayerShooting : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, _currentAttackRange, _layerMask))
         {
+            Debug.Log($"Colpito --> {hit.transform.name}");
             ParticleSystem effect = Instantiate(hitEffectPrefab);
 
             effect.transform.position = hit.point;
