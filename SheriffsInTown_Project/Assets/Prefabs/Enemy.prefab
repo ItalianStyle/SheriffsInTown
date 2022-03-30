@@ -449,6 +449,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bcd4eeccb954584c9b93e4f8dca76c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hpBar: {fileID: 1283171475982014915}
 --- !u!1 &7580043172951399542
 GameObject:
   m_ObjectHideFlags: 0
@@ -461,7 +462,7 @@ GameObject:
   - component: {fileID: 7546715645341689768}
   - component: {fileID: 1283171475982014915}
   m_Layer: 5
-  m_Name: HP_BarBackground (1)
+  m_Name: HP_Bar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
