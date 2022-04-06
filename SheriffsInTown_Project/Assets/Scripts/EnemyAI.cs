@@ -80,14 +80,7 @@ public class EnemyAI : MonoBehaviour
     {
         if(other.CompareTag("Player"))
         {
-<<<<<<< Updated upstream
-            playerDetected = true;
-            enemyMaterial.color = Color.green;
-            targetHealth = other.GetComponent<PlayerHealthSystem>();
-            Debug.Log("Il nemico mi vede");
-=======
             EngagePlayer(true, other);
->>>>>>> Stashed changes
         }
     }
 
@@ -95,14 +88,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-<<<<<<< Updated upstream
-            playerDetected = false;
-            enemyMaterial.color = initialColor;
-            targetHealth = null;
-            Debug.Log("Il nemico mi ha perso di vista");
-=======
             EngagePlayer(false, other);
->>>>>>> Stashed changes
         }
     }
 
