@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BulletImpact : MonoBehaviour
@@ -9,7 +7,7 @@ public class BulletImpact : MonoBehaviour
     {
         if (collision.transform.CompareTag("Enemy"))
         {
-            collision.transform.GetComponent<PlayerHealthSystem>().SetCurrentHealth(20,true);
+            collision.transform.GetComponent<PlayerHealthSystem>().CurrentHealth -= 20;
         }
         Destroy(gameObject);
     }
