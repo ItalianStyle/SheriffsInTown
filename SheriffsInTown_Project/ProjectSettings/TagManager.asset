@@ -10,6 +10,8 @@ TagManager:
   - Key
   - PlayBtn
   - ExitBtn
+  - LifeImage
+  - RestartBtn
   layers:
   - Default
   - TransparentFX
