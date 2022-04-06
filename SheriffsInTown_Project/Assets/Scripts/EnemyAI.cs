@@ -15,7 +15,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] int damage = 20;
     
     bool playerDetected = false;
-    PlayerHealthSystem targetHealth = null;
+    PlayerHealthSystem playerHealth = null;
     NavMeshAgent agent = null;
     bool canShoot;
     Material enemyMaterial;
@@ -27,20 +27,37 @@ public class EnemyAI : MonoBehaviour
         initialColor = enemyMaterial.color;
         agent = GetComponent<NavMeshAgent>();
         canShoot = true;
+
+        PlayerHealthSystem.OnPlayerDead += HandlePlayerDeath;
+        GameStateManager.Instance.OnGameStateChanged += HandleEnemyBehaviour;
+    }
+
+    private void HandlePlayerDeath(GameObject player)
+    {
+        //Non inseguire il giocatore
+        EngagePlayer(false);
+        //Smetti di ricaricare prima di sparare
+        StopAllCoroutines();
+    }
+
+    private void OnDestroy()
+    {
+        PlayerHealthSystem.OnPlayerDead -= HandlePlayerDeath;
+        GameStateManager.Instance.OnGameStateChanged -= HandleEnemyBehaviour;
     }
 
     private void Update()
     {
-        if (!playerDetected || !targetHealth)
+        if (!(playerDetected && playerHealth))
             return;
         
-        if (Vector3.Distance(targetHealth.transform.position, transform.position) <= attackDistance)
+        if (Vector3.Distance(playerHealth.transform.position, transform.position) <= attackDistance)
         {
             agent.isStopped = true;
             if (canShoot)
             {
                 //attack
-                targetHealth.SetCurrentHealth(damage, true);
+                playerHealth.CurrentHealth -= damage;
                 StartCoroutine(Reload());
             }
         }
@@ -48,7 +65,7 @@ public class EnemyAI : MonoBehaviour
         {
             agent.isStopped = false;
             //transform.LookAt(target);
-            agent.SetDestination(targetHealth.transform.position);
+            agent.SetDestination(playerHealth.transform.position);
         }
     }
 
@@ -63,10 +80,14 @@ public class EnemyAI : MonoBehaviour
     {
         if(other.CompareTag("Player"))
         {
+<<<<<<< Updated upstream
             playerDetected = true;
             enemyMaterial.color = Color.green;
             targetHealth = other.GetComponent<PlayerHealthSystem>();
             Debug.Log("Il nemico mi vede");
+=======
+            EngagePlayer(true, other);
+>>>>>>> Stashed changes
         }
     }
 
@@ -74,10 +95,27 @@ public class EnemyAI : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+<<<<<<< Updated upstream
             playerDetected = false;
             enemyMaterial.color = initialColor;
             targetHealth = null;
             Debug.Log("Il nemico mi ha perso di vista");
+=======
+            EngagePlayer(false, other);
+>>>>>>> Stashed changes
         }
+    }
+
+    private void HandleEnemyBehaviour(GameState newGameState)
+    {
+        agent.isStopped = !(newGameState is GameState.Gameplay);
+        enabled = newGameState is GameState.Gameplay;
+    }
+
+    private void EngagePlayer(bool canChasePlayer, Collider other = null)
+    {
+        playerDetected = canChasePlayer;
+        enemyMaterial.color = canChasePlayer ? Color.green : initialColor;
+        playerHealth = canChasePlayer ? other.GetComponent<PlayerHealthSystem>() : null;
     }
 }
