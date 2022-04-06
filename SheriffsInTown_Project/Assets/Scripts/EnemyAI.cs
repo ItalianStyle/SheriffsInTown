@@ -66,6 +66,7 @@ public class EnemyAI : MonoBehaviour
             playerDetected = true;
             enemyMaterial.color = Color.green;
             targetHealth = other.GetComponent<PlayerHealthSystem>();
+            Debug.Log("Il nemico mi vede");
         }
     }
 
@@ -76,6 +77,7 @@ public class EnemyAI : MonoBehaviour
             playerDetected = false;
             enemyMaterial.color = initialColor;
             targetHealth = null;
+            Debug.Log("Il nemico mi ha perso di vista");
         }
     }
 }

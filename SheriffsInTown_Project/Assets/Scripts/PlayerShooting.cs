@@ -9,12 +9,12 @@ public class PlayerShooting : MonoBehaviour
 {
     public static event Action OnPlayerStartReloading = delegate { };
     public static event Action OnPlayerFinishedReloading = delegate { };
-    
+
     //public static event Action<bool> OnShotFired = delegate { };
 
     //[Tooltip("Quanto e' largo il cerchio di accuratezza")]
     //[SerializeField] float spreadLimit = 2.0f;
-    
+
     [Header("Statistiche attuali")]
     [Tooltip("Rateo di fuoco (proiettili al secondo)")]
     [SerializeField] float rateOfFire = 1f;
@@ -206,9 +206,16 @@ public class PlayerShooting : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, _currentAttackRange, _layerMask))
         {
+            Debug.Log($"Colpito --> {hit.transform.name}");
+            Debug.DrawRay(ray.origin, ray.direction.normalized * (ray.origin - hit.point).magnitude, Color.red, 2f);
+
+            //Crea l'effetto
             ParticleSystem effect = Instantiate(hitEffectPrefab);
 
+            //Posiziona l'effetto sul punto di impatto
             effect.transform.position = hit.point;
+
+            //Distruggi l'effetto quando finisce l'effetto
             Destroy(effect.gameObject, effect.main.duration);
 
             //http://codesaying.com/understanding-screen-point-world-point-and-viewport-point-in-unity3d/
@@ -217,6 +224,11 @@ public class PlayerShooting : MonoBehaviour
                 healthSys.TakeDamage(_currentDamage);
             }
             //OnShotFired?.Invoke(CompareTag("Player"));
+        }
+
+        else
+        {
+            Debug.Log("Colpo a vuoto");
         }
     }
 }
