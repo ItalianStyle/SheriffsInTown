@@ -8,6 +8,8 @@ namespace SheriffsInTown
         [Header("Movimento")]
         [Tooltip("Velocita' di movimento del personaggio")]
         [SerializeField] float movementSpeed = 10f;
+        [Tooltip("Velocità di movimento del personaggio quando corre")]
+        [SerializeField] float runMovementSpeed = 20f;
         float movementSpeedReference;
 
         [Header("Rotazione")]
@@ -39,9 +41,6 @@ namespace SheriffsInTown
 
             movementSpeedReference = movementSpeed;
 
-            SpecialSkill.OnActivatedSkill += (skill) => SetPlayerMovement(skill.NewMovementSpeed);
-            SpecialSkill.OnFinishedSkill += () => SetPlayerMovement(movementSpeedReference);
-
             //Chiamo il metodo quando il giocatore mette in pausa il gioco o lo riprende
             GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
 
@@ -67,6 +66,10 @@ namespace SheriffsInTown
                         jumpInput.y = jumpForce;
                     }
                 }
+
+                //Meccanica di corsa quando il giocatore preme lo shift sinistro
+                SetPlayerMovement(Input.GetKey(KeyCode.LeftShift) ? runMovementSpeed : movementSpeed);
+                
             }
         }
 
@@ -115,9 +118,6 @@ namespace SheriffsInTown
 
         private void OnDestroy()
         {
-            SpecialSkill.OnActivatedSkill -= (skill) => SetPlayerMovement(skill.NewMovementSpeed);
-            SpecialSkill.OnFinishedSkill -= () => SetPlayerMovement(movementSpeedReference);
-
             //Annullo l'ascolto all'evento della pausa di gioco
             GameStateManager.Instance.OnGameStateChanged -= OnGameStateChanged;
 

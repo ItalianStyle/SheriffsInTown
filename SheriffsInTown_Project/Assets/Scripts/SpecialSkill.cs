@@ -63,7 +63,7 @@ public class SpecialSkill : MonoBehaviour
 
     private void Update()
     {
-        if(canActivateSkill && Input.GetKeyDown(KeyCode.LeftShift) && CurrentSkillBar >= maxSkillBar)
+        if(canActivateSkill && Input.GetKeyDown(KeyCode.Tab) && CurrentSkillBar >= maxSkillBar)
         {
             CurrentSkillBar = 0;
             OnActivatedSkill?.Invoke(this);
