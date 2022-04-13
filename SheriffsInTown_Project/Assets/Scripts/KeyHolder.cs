@@ -1,25 +1,29 @@
 using UnityEngine;
 
+
 public class KeyHolder : MonoBehaviour
 {
+    
+    BridgeLever levaInventory;
+
+    struct BridgeLever
+    {
+        bool isLevaPossessed;
+        bool isPomelloPossessed;
+        bool isBasePossessed;
+    }
+
     int possessedKeys = 0;
     bool canListenInput = false;
+    
+    // if (AbbassaPonte.levaPresente&&
 
     GameObject gateToOpen;
 
     private void Start()
     {
-        Gate.OnPlayerNearGate += (gate) =>
-        {
-            canListenInput = true;
-            gateToOpen = gate;
-        };
-
-        Gate.OnPlayerLeftGate += () =>
-        {
-            canListenInput = false;
-            gateToOpen = null;
-        };
+        Gate.OnPlayerNearGate += HandlePlayerNearGate;
+        Gate.OnPlayerLeftGate += HandlePlayerLeftGate;
     }
 
     private void Update()
@@ -33,17 +37,20 @@ public class KeyHolder : MonoBehaviour
 
     private void OnDisable()
     {
-        Gate.OnPlayerNearGate -= (gate) =>
-        {
-            canListenInput = true;
-            gateToOpen = gate;
-        };
+        Gate.OnPlayerNearGate -= HandlePlayerNearGate;
+        Gate.OnPlayerLeftGate -= HandlePlayerLeftGate;
+    }
 
-        Gate.OnPlayerLeftGate -= () =>
-        {
-            canListenInput = false;
-            gateToOpen = null;
-        };
+    void HandlePlayerNearGate(GameObject gate)
+    {
+        canListenInput = true;
+        gateToOpen = gate;
+    }
+
+    void HandlePlayerLeftGate() 
+    {
+        canListenInput = false;
+        gateToOpen = null;
     }
 
     public void TakeKey() => possessedKeys++;
