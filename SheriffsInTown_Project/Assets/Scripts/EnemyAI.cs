@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -23,7 +22,7 @@ public class EnemyAI : MonoBehaviour
 
     private void Start()
     {
-        enemyMaterial = GetComponent<Renderer>().material;
+        enemyMaterial = transform.Find("Mesh").GetComponent<Renderer>().material;
         initialColor = enemyMaterial.color;
         agent = GetComponent<NavMeshAgent>();
         canShoot = true;
