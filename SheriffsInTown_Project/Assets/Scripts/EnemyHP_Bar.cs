@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class EnemyHP_Bar : MonoBehaviour
 {
-    Transform playerTarget; //Riferimento per puntare il canvas verso il giocatore
+    Transform targetToLook; //Riferimento per puntare il canvas verso il giocatore
     EnemyHealthSystem enemyHealth;  //Riferimento per ascoltare l'evento di subimento danni
 
     [Tooltip("Riferimento alla barra vita del nemico")]
@@ -12,7 +12,7 @@ public class EnemyHP_Bar : MonoBehaviour
     private void Awake()
     {
         //Prendo i riferimenti necessari
-        playerTarget = GameObject.FindGameObjectWithTag("Player").transform;
+        targetToLook = Camera.main.transform;
         enemyHealth = GetComponentInParent<EnemyHealthSystem>();
     }
 
@@ -31,7 +31,7 @@ public class EnemyHP_Bar : MonoBehaviour
     void Update()
     {
         //Punta il canvas verso il player
-        transform.LookAt(playerTarget);
+        transform.LookAt(targetToLook);
     }
 
     private void OnDestroy()
