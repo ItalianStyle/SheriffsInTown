@@ -10,7 +10,7 @@ namespace SheriffsInTown
         [SerializeField] float movementSpeed = 10f;
         [Tooltip("Velocità di movimento del personaggio quando corre")]
         [SerializeField] float runMovementSpeed = 20f;
-        float movementSpeedReference;
+        float normalMovementSpeed;
 
         [Header("Rotazione")]
         [Tooltip("Quanto velocemente ruota il personaggio verso una nuova direzione")]
@@ -39,14 +39,14 @@ namespace SheriffsInTown
             virtualCamera = GameObject.Find("FollowPlayerCamera").GetComponent<CinemachineVirtualCamera>();
             controller = GetComponent<CharacterController>();
 
-            movementSpeedReference = movementSpeed;
+            normalMovementSpeed = movementSpeed;
 
             //Chiamo il metodo quando il giocatore mette in pausa il gioco o lo riprende
             GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
 
             //GameManager.PlayerWonGame += () => enabled = false;
             PlayerShooting.OnPlayerStartReloading += () => SetPlayerMovement(0);
-            PlayerShooting.OnPlayerFinishedReloading += () => SetPlayerMovement(movementSpeedReference);
+            PlayerShooting.OnPlayerFinishedReloading += () => SetPlayerMovement(normalMovementSpeed);
         }
 
         private void Update()
@@ -68,8 +68,7 @@ namespace SheriffsInTown
                 }
 
                 //Meccanica di corsa quando il giocatore preme lo shift sinistro
-                SetPlayerMovement(Input.GetKey(KeyCode.LeftShift) ? runMovementSpeed : movementSpeed);
-                
+                SetPlayerMovement(Input.GetKey(KeyCode.LeftShift) ? runMovementSpeed : normalMovementSpeed);              
             }
         }
 
@@ -124,7 +123,7 @@ namespace SheriffsInTown
             //GameManager.PlayerWonGame -= () => enabled = false;
 
             PlayerShooting.OnPlayerStartReloading -= () => SetPlayerMovement(0);
-            PlayerShooting.OnPlayerFinishedReloading -= () => SetPlayerMovement(movementSpeedReference);
+            PlayerShooting.OnPlayerFinishedReloading -= () => SetPlayerMovement(normalMovementSpeed);
         }
 
         private void SetPlayerMovement(float newMovementSpeed)
