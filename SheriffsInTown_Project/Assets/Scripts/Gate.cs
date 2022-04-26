@@ -1,24 +1,17 @@
-using System;
 using UnityEngine;
 
 public class Gate : MonoBehaviour
 {
-    public static event Action<GameObject> OnPlayerNearGate = delegate { };
-    public static event Action OnPlayerLeftGate = delegate { };
+    Animator animator;
+    [SerializeField] GameObject animatedBridge;
 
-    private void OnTriggerEnter(Collider other)
+    private void Awake()
     {
-        if(other.CompareTag("Player"))
-        {
-            OnPlayerNearGate?.Invoke(gameObject);
-        }
+        animator = animatedBridge.GetComponent<Animator>();
     }
 
-    private void OnTriggerExit(Collider other)
+    public void OpenGate()
     {
-        if(other.CompareTag("Player"))
-        {
-            OnPlayerLeftGate?.Invoke();
-        }
+        animator.SetTrigger("CanLowerBridge");
     }
 }
