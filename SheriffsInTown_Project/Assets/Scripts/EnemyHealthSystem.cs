@@ -7,7 +7,7 @@ public class EnemyHealthSystem : MonoBehaviour
     public event Action<int, int> OnEnemyDamaged = delegate { };
 
     [SerializeField] int maxHealth = 100;
-    [SerializeField] int _currentHealth = 100;
+    int _currentHealth = 100;
 
     private void OnEnable()
     {
