@@ -45,8 +45,8 @@ public class PlayerShooting : MonoBehaviour
     [Tooltip("Qui vanno le due modalita' di fuoco del personaggio")]
     [SerializeField] ShootingMode[] shootingModes;
 
-    [Tooltip("Inserire qui i modelli delle due pistole")]
-    [SerializeField] GameObject[] gunMeshes = new GameObject[2];
+    [Tooltip("Inserire qui i modelli delle due pistole:\n0 -> pistola sinistra\n1 -> pistola destra")]
+    [SerializeField] MeshRenderer[] gunMeshes = new MeshRenderer[2];
 
     [SerializeField] Image munitionsStateImage;
     [SerializeField] TMP_Text munitionsText;
@@ -159,7 +159,9 @@ public class PlayerShooting : MonoBehaviour
         _currentShootingModeIndex = isDoubleShootingMode ? 0 : 1;
 
         //Fai apparire la pistola (sulla mano sinistra) se la modalita di sparo e' doppia
-        gunMeshes[0].SetActive(isDoubleShootingMode);
+        gunMeshes[0].enabled = isDoubleShootingMode;
+        //Faccio apparire in ogni caso la pistola della mano destra
+        gunMeshes[1].enabled = true;
 
         //Aggiorno le statistiche del componente secondo la nuova modalita' di sparo
         _currentAttackRange = CurrentShootingMode.attackRange;
@@ -199,7 +201,8 @@ public class PlayerShooting : MonoBehaviour
     }
 
     void Shoot()
-    {                            
+    {
+        //http://codesaying.com/understanding-screen-point-world-point-and-viewport-point-in-unity3d/
         Ray ray = cam.ScreenPointToRay(screenCenter);
         
         RaycastHit hit;
@@ -218,17 +221,16 @@ public class PlayerShooting : MonoBehaviour
             //Distruggi l'effetto quando finisce l'effetto
             Destroy(effect.gameObject, effect.main.duration);
 
-            //http://codesaying.com/understanding-screen-point-world-point-and-viewport-point-in-unity3d/
+            
             if (hit.collider.TryGetComponent(out EnemyHealthSystem healthSys))
             {
                 healthSys.TakeDamage(_currentDamage);
             }
+            else if(hit.collider.TryGetComponent(out Barrel barrel))
+            {
+                barrel.Destroy();
+            }
             //OnShotFired?.Invoke(CompareTag("Player"));
-        }
-
-        else
-        {
-            Debug.Log("Colpo a vuoto");
         }
     }
 }
