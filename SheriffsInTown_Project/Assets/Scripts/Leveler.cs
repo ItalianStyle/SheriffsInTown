@@ -11,113 +11,158 @@ public class Leveler : MonoBehaviour
     [Tooltip("Riferimento al ponte a cui è collegata questa leva")]
     [SerializeField] Gate connectedGate;
 
+    Transform lever;
     Animator leverAnimator;
     [Tooltip("Tempo richiesto al giocatore di tenere premuto il pulsante")]
     [SerializeField] float maxTimeToPress;
-    
-    bool canLowerLever;     //Booleana per verificare se il giocatore può abbassare la leva
+    float currentTimeKeyPressed;        //Contatore per tenere conto del tempo passato dal giocatore a tenere premuto il pulsante
+
+    bool canListenInput;     //Booleana per verificare se il giocatore è nelle vicinanze della leva
     bool isGateClosed;      //Booleana che indica lo stato del ponte
     bool readyToBeLowered;      //Booleana per decrementare il contatore della leva se il giocatore non completa la discesa della leva
 
-    //Contatore per tenere conto del tempo passato dal giocatore a tenere premuto il pulsante
-    float currentTimeKeyPressed;
+    Coroutine lowerLever = null;
+    Coroutine raiseLever = null;
 
     private void Awake()
     {
-        leverAnimator = transform.Find("Lever").GetComponent<Animator>();
+        lever = transform.Find("Lever");
+        //leverAnimator = lever.GetComponent<Animator>();
     }
 
     private void Start()
     {
-        //Stabilisco la velocità di movimento della leva in base al tempo richiesto di pressione del tasto
-        leverAnimator.speed /= maxTimeToPress;
-
+        //leverAnimator.speed /= maxTimeToPress;  //Stabilisco la velocità di movimento della leva in base al tempo richiesto di pressione del tasto
         currentTimeKeyPressed = 0;
 
-        //Il ponte è chiuso all'inizio del gioco
-        isGateClosed = true;
+        isGateClosed = true;    //Il ponte è chiuso all'inizio del gioco
 
-        //La leva è nella posizione iniziale (pronta ad essere abbassata)
-        readyToBeLowered = true;
+        readyToBeLowered = true;    //La leva è nella posizione iniziale (pronta ad essere abbassata)
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        //Se il player si avvicina alla leva ed il ponte è ancora chiuso
-        if (other.CompareTag("Player") && isGateClosed)
-        {
-            //Inizia ad ascoltare l'eventuale input del giocatore
-            canLowerLever = true;
-        }
+        if (other.CompareTag("Player") && isGateClosed)     //Se il player si avvicina alla leva ed il ponte è ancora chiuso
+            canListenInput = true;    //Inizia ad ascoltare l'eventuale input del giocatore
     }
 
     private void OnTriggerExit(Collider other)
     {
-        //Se il player si allontana dalla leva ed il ponte è ancora chiuso
-        if (other.CompareTag("Player") && isGateClosed)
+        if (other.CompareTag("Player") && isGateClosed)     //Se il player si allontana dalla leva ed il ponte è ancora chiuso
         {
-            //Smetti di ascoltare l'eventuale input del giocatore
-            canLowerLever = false;
-
-            //Comincia a far ritornare la leva alla posizione iniziale
-            readyToBeLowered = false;
+            canListenInput = false;   //Smetti di ascoltare l'eventuale input del giocatore
+            //leverAnimator.SetBool("CanLowerLever", false);  //Comincia l'animazione per ritornare alla posizione iniziale
+            readyToBeLowered = false;   //Disabilita la leva
         }
     }
 
-    void Update()
+    /*void Update()
     {
-        //Se il ponte è chiuso ed il player è nei paraggi della leva
-        if (isGateClosed && canLowerLever)
-        {
-            //Nell'istante in cui preme il tasto "E"
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                //Inizia ad abbassare la leva con l'animazione
-                leverAnimator.SetBool("CanLowerLever", true);
-                //Non è più nella posizione iniziale
-                readyToBeLowered = false;
-            }
-
-            //Per ogni frame in cui il giocatore tiene premuto il tasto "E"
-            if (Input.GetKey(KeyCode.E))
-            {
-                //Continua a contare il tempo che passa
-                currentTimeKeyPressed += Time.deltaTime;
-
-                //Se è passato abbastanza tempo
-                if (currentTimeKeyPressed >= maxTimeToPress)
+        if (isGateClosed)   //Se il ponte è chiuso
+        {       
+            if (canListenInput)   //Se il player è nei paraggi della leva
+            {       
+                if (Input.GetKeyDown(KeyCode.E))    //Nell'istante in cui preme il tasto "E"
+                {       
+                    leverAnimator.SetBool("CanLowerLever", true);   //Inizia ad abbassare la leva con l'animazione   
+                    readyToBeLowered = false;   //Non è più nella posizione iniziale
+                }  
+                else if (Input.GetKey(KeyCode.E))   //Per ogni frame in cui il giocatore tiene premuto il tasto "E"
+                {  
+                    currentTimeKeyPressed += Time.deltaTime;    //Continua a contare il tempo che passa
+                    
+                    if (currentTimeKeyPressed >= maxTimeToPress)    //Se è passato abbastanza tempo
+                    {                         
+                        connectedGate.OpenGate();   //Apri il ponte
+                        isGateClosed = false;
+                        canListenInput = false;   //Non ascoltare più l'input del giocatore
+                    }
+                }
+                else if (Input.GetKeyUp(KeyCode.E) && currentTimeKeyPressed < maxTimeToPress)   //Se il giocatore rilascia il tasto "E" prima di concludere il tempo
                 {
-                    //Apri il ponte
-                    connectedGate.OpenGate();
-                    isGateClosed = false;
+                    leverAnimator.SetBool("CanLowerLever", false);  //Comincia l'animazione per ritornare alla posizione iniziale
+                    readyToBeLowered = false;   //Faccio decrescere il contatore per la leva
+                }
+                else if(currentTimeKeyPressed > 0)  //Se la leva non è nella posizione iniziale
+                {
+                    currentTimeKeyPressed -= Time.deltaTime;    //Decrementa il contatore
 
-                    //Non ascoltare più l'input del giocatore
-                    canLowerLever = false;
+                    if (currentTimeKeyPressed < 0)  //Se si è esaurito il tempo
+                    {
+                        currentTimeKeyPressed = 0;  //Inizializza il contatore
+                        readyToBeLowered = true;    //Esci da questo if
+                    }
+                } 
+            }
+            //Se il giocatore non è nei paraggi e la leva non è nella posizione iniziale (quindi c'è del tempo da decrementare nel contatore che è > 0) 
+            else if (!readyToBeLowered && currentTimeKeyPressed > 0)
+            {
+                currentTimeKeyPressed -= Time.deltaTime;    //Decrementa il contatore
+                
+                if (currentTimeKeyPressed < 0)  //Se si è esaurito il tempo
+                {
+                    currentTimeKeyPressed = 0;  //Inizializza il contatore
+                    readyToBeLowered = true;    //Esci da questo if
                 }
             }
-            //Se il giocatore rilascia il tasto "E" prima di concludere il tempo
-            if (Input.GetKeyUp(KeyCode.E))
+        }
+    }*/
+
+    void Update()
+    {
+        if (isGateClosed)   //Se il ponte è chiuso
+        {
+            if (canListenInput)   //Se il player è nei paraggi della leva
             {
-                //Comincia l'animazione per ritornare alla posizione iniziale
-                leverAnimator.SetBool("CanLowerLever", false);
-                //Faccio decrescere il contatore per la leva
-                readyToBeLowered = false;
+                if(Input.GetKeyDown(KeyCode.E))
+                {
+                    if (raiseLever != null)
+                    {
+                        StopCoroutine(raiseLever);
+                        raiseLever = null;
+                    }
+                    lowerLever = StartCoroutine(LerpFunction(true));
+                }
+                else if(Input.GetKeyUp(KeyCode.E))
+                {
+                    if (lowerLever != null)
+                    {
+                        StopCoroutine(lowerLever);
+                        lowerLever = null;
+                    }
+                    raiseLever = StartCoroutine(LerpFunction(false));
+                }
             }
+        }
+    }
+    IEnumerator LerpFunction(bool isDownDirection)
+    {
+        Quaternion startValue = isDownDirection ? Quaternion.Euler(65, 0, 0) : Quaternion.Euler(-65, 0, 0);
+        Quaternion endValue = isDownDirection ? Quaternion.Euler(-65, 0, 0) : Quaternion.Euler(65, 0, 0);
+        float delta = currentTimeKeyPressed / maxTimeToPress;
+        if (delta > 0)
+        {
+            //Bisogna trovare il valore simmetrico del delta quando si cambia direzione per non flippare la leva
+            //Esempio: se il delta è 0.1 nella fase di discesa, questa corrisponde a 0.9 in fase di salita
+            float offset = .5f - delta;
+            if (offset > 0)
+            {
+                delta = delta + offset;
+            }
+                    
         }
 
-        //Se la leva non è nella posizione iniziale (quindi c'è del tempo da decrementare nel contatore che è > 0)
-        if (!readyToBeLowered && currentTimeKeyPressed > 0)
+        while (currentTimeKeyPressed >= 0 && currentTimeKeyPressed < maxTimeToPress)
         {
-            //Decrementa il contatore
-            currentTimeKeyPressed -= Time.deltaTime;
-            //Se si è esaurito il tempo
-            if (currentTimeKeyPressed < 0)
-            {
-                //Inizializza il contatore
-                currentTimeKeyPressed = 0;
-                //Esci da questo if
-                readyToBeLowered = true;
-            }
+            lever.localRotation = Quaternion.Lerp(startValue, endValue, currentTimeKeyPressed / maxTimeToPress);
+
+            if (isDownDirection)
+                currentTimeKeyPressed += Time.deltaTime;
+            else
+                currentTimeKeyPressed -= Time.deltaTime;
+            yield return new WaitForEndOfFrame();
         }
+        lever.localRotation = endValue;
+        currentTimeKeyPressed = isDownDirection ? maxTimeToPress : 0;
     }
 }
