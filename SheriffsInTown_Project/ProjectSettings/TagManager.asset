@@ -12,6 +12,7 @@ TagManager:
   - ExitBtn
   - LifeImage
   - RestartBtn
+  - FxTemporaire
   layers:
   - Default
   - TransparentFX
@@ -21,7 +22,7 @@ TagManager:
   - UI
   - 
   - Enemy
-  - 
+  - BarrieraPerNemico
   - 
   - 
   - 
