@@ -794,7 +794,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 147235585}
-  - {fileID: 152225399}
   - {fileID: 659141345}
   m_Father: {fileID: 0}
   m_RootOrder: 24
@@ -2640,56 +2639,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1423977715718702862, guid: c75126871f318bc47ac8849eff482a49, type: 3}
   m_PrefabInstance: {fileID: 148233364}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &152225398
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 152225399}
-  - component: {fileID: 152225400}
-  m_Layer: 0
-  m_Name: PonteAnimato (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &152225399
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 152225398}
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 15, y: 1, z: 119.61914}
-  m_Children: []
-  m_Father: {fileID: 19689023}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!95 &152225400
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 152225398}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b2f13d54ce845a749a58ce615881059f, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &154841551
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13553,7 +13502,7 @@ Transform:
   m_LocalScale: {x: 15, y: 1, z: 119.61914}
   m_Children: []
   m_Father: {fileID: 19689023}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!65 &659141346
 BoxCollider:
