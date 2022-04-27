@@ -18,6 +18,8 @@ public class UI_Manager : MonoBehaviour
     //Riferimento alla barra HP del personaggio
     Image hpBar;
 
+    Image actionBar;    //Riferimento alla barra azione
+
     //Riferimento ai simboli della vita del personaggio
     Image[] lifeImages;
     
@@ -26,6 +28,8 @@ public class UI_Manager : MonoBehaviour
 
     //Riferimento al pannello della sconfitta
     CanvasGroup lostPanel;
+
+    CanvasGroup actionPanel;    //Riferimento al pannello azione
 
     public static UI_Manager instance;
 
@@ -78,13 +82,21 @@ public class UI_Manager : MonoBehaviour
                 if (!lostPanel) 
                     lostPanel = GameObject.Find("UI/LostPanel").GetComponent<CanvasGroup>();
 
+                if (!actionPanel)
+                    actionPanel = GameObject.Find("UI/ActionPanel").GetComponent<CanvasGroup>();
+
                 if (!hpBar)
                     hpBar = GameObject.Find("UI/HUD_Panel/HP_Bar_Background/HP_Bar").GetComponent<Image>();
 
+                if (!actionBar)
+                    actionBar = actionPanel.transform.Find("Background").GetComponent<Image>();
+
+                actionBar.fillAmount = 0;
                 FindLifeImages();
 
                 SetCanvasGroup(pausePanel, false);
                 SetCanvasGroup(lostPanel, false);
+                SetCanvasGroup(actionPanel, false);
 
                 HandleCursor(GameState.Gameplay);
 
@@ -98,7 +110,6 @@ public class UI_Manager : MonoBehaviour
                 exitBtn.onClick.AddListener(LoadMenuScene);
 
                 //Gestisci i pannelli quando il gioco passa dallo stato di gameplay ad uno che richiede una pausa
-                Debug.Log("Iscritto all'evento per far apparire/sparire i pannelli");
                 GameStateManager.Instance.OnGameStateChanged += HandleCursorAndPanels;
 
                 // Aggiorna i "cuori" mostrati al giocatore quando perde vita o ricomincia il gioco
@@ -108,6 +119,10 @@ public class UI_Manager : MonoBehaviour
                 PlayerHealthSystem.OnPlayerDamaged += UpdateHP_Bar;
                 PlayerHealthSystem.OnPlayerHealed += UpdateHP_Bar;
                 PlayerHealthSystem.OnPlayerHealthChanged += UpdateHP_Bar;
+
+                Lever.OnPlayerNearLever += EnableActionPanel;
+                Lever.OnPlayerLeftLever += DisableActionPanel;
+                Lever.OnCompletedAction += DisableActionPanel;
                 break;
         }
     }
@@ -117,11 +132,13 @@ public class UI_Manager : MonoBehaviour
         if (scene.buildIndex == 1)
         {
             GameManager.OnLivesChanged -= UpdatePlayerLifeImages;
-            Debug.Log("Disiscritto all'evento per gestire i pannelli");
             GameStateManager.Instance.OnGameStateChanged -= HandleCursorAndPanels;
             PlayerHealthSystem.OnPlayerDamaged -= UpdateHP_Bar;
             PlayerHealthSystem.OnPlayerHealed -= UpdateHP_Bar;
             PlayerHealthSystem.OnPlayerHealthChanged -= UpdateHP_Bar;
+            Lever.OnPlayerNearLever -= EnableActionPanel;
+            Lever.OnPlayerLeftLever -= DisableActionPanel;
+            Lever.OnCompletedAction -= DisableActionPanel;
         }
     }
 
@@ -137,6 +154,7 @@ public class UI_Manager : MonoBehaviour
         HandleCursor(newGameState);
         HandlePausePanel(newGameState);
         HandleLostPanel(newGameState);
+        HandleActionPanel(newGameState);
     }
 
     private void UpdatePlayerLifeImages(int lifeCounts)
@@ -181,6 +199,26 @@ public class UI_Manager : MonoBehaviour
     private void HandleLostPanel(GameState newGameState)
     {
         SetCanvasGroup(lostPanel, newGameState is GameState.Lost);
+    }
+
+    private void HandleActionPanel(GameState newGameState)
+    {
+        SetCanvasGroup(actionPanel, !(newGameState is GameState.Paused) && !(newGameState is GameState.Lost));
+    }
+
+    void EnableActionPanel()
+    {
+        SetCanvasGroup(actionPanel, true);
+    }
+
+    void DisableActionPanel()
+    {
+        SetCanvasGroup(actionPanel, false);
+    }
+
+    public void SetActionBarFillAmount(float currentAmount, float totalAmount)
+    {
+        actionBar.fillAmount = currentAmount / totalAmount;
     }
 
     public static void SetCanvasGroup(CanvasGroup canvasGroup, bool canActive)
