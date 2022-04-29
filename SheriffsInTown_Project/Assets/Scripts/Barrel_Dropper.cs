@@ -19,6 +19,9 @@ public class Barrel_Dropper : Barrel
     [Tooltip("Probabilità che droppi la stella dello sceriffo alla sua distruzione")]
     [SerializeField] [Range(0f, 100f)] float dropStar;
 
+    [Tooltip("Offset da aggiungere in verticale al pickup spawnato")]
+    [SerializeField] float spawnPositionVerticalOffset;
+
     [Tooltip("Prefab della cura da spawnare")]
     [SerializeField] GameObject healPickupPrefab;
 
@@ -42,17 +45,16 @@ public class Barrel_Dropper : Barrel
     private void DropItem()
     {
         float drawn = Random.Range(0f, 100f);
-        if(drawn >= dropHeal)
+        Vector3 spawnPosition = transform.position + (Vector3.up * spawnPositionVerticalOffset);
+        if (drawn >= dropHeal)
         {
             //Droppa cura
-            //Da far vedere a marco
-            Instantiate(healPickupPrefab, transform.position, Quaternion.identity);
+            Instantiate(healPickupPrefab, spawnPosition, Quaternion.identity);
         }
         else if(drawn >= dropStar)
         {
             //Droppa la stella
-            //Dar far vedere a marco
-            Instantiate(starPickupPrefab, transform.position, Quaternion.identity);
+            Instantiate(starPickupPrefab, spawnPosition, Quaternion.identity);
         }
         //else non droppare niente
     }
