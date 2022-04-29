@@ -28,12 +28,6 @@ public class Barrel : MonoBehaviour
 
         explosionFX.Play();
         //Distruggi il barile dopo l'effetto dell'esplosione
-        StartCoroutine(DestroyObjectAfterDelay(explosionFX.main.duration));
-    }
-
-    IEnumerator DestroyObjectAfterDelay(float timeToWait)
-    {
-        yield return new WaitForSeconds(timeToWait);
-        Destroy(gameObject);
+        Destroy(gameObject, explosionFX.main.duration);
     }
 }
