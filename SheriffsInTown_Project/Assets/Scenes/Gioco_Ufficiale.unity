@@ -40174,7 +40174,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2377656943784482112, guid: bac661132734e9546bc3bf47ba848a54, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2377656943784482116, guid: bac661132734e9546bc3bf47ba848a54, type: 3}
       propertyPath: m_RootOrder
@@ -45041,6 +45041,14 @@ PrefabInstance:
     - target: {fileID: 24135747375135325, guid: 62ecf001ca5b0014b9b5169e8bd866b0, type: 3}
       propertyPath: m_Name
       value: CassaDropper
+      objectReference: {fileID: 0}
+    - target: {fileID: 24135747375135327, guid: 62ecf001ca5b0014b9b5169e8bd866b0, type: 3}
+      propertyPath: dropHeal
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 24135747375135327, guid: 62ecf001ca5b0014b9b5169e8bd866b0, type: 3}
+      propertyPath: dropStar
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 801200898991628519, guid: 62ecf001ca5b0014b9b5169e8bd866b0, type: 3}
       propertyPath: m_RootOrder
