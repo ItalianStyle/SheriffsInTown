@@ -1,19 +1,16 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class SpecialSkill : MonoBehaviour
 {
     public static event Action<SpecialSkill> OnActivatedSkill = delegate { };
     public static event Action OnFinishedSkill = delegate { };
+    public static event Action<float, float> OnSpecialSkillBarChangedValue = delegate { };
 
     //Quando questo numero raggiunge 100 indica che l'abilita' e' pronta ad essere utilizzata
-    int _currentSkillBar;
-    int maxSkillBar = 100;
-
-    [SerializeField] Image specialSkillImage;
+    float _currentSkillBar;
+    float maxSkillBar = 100;
 
     [Tooltip("Nuova velocita' di movimento del giocatore")]
     [SerializeField] float _newMovementSpeed;
@@ -24,48 +21,52 @@ public class SpecialSkill : MonoBehaviour
     [Tooltip("Durata dell'effetto")]
     [SerializeField] float _duration;
 
-    bool _canActivateSkill;
-
-    bool canActivateSkill
-    {
-        get => _canActivateSkill;
-
-        set
-        {
-            Color imageColor = specialSkillImage.color;
-            imageColor.a = value ? 1f : .5f;
-            specialSkillImage.color = imageColor;
-
-            _canActivateSkill = value;
-        }
-    }
+    public bool canActivateSkill;
     
-    int CurrentSkillBar
+    float CurrentSkillBar
     {
         get => _currentSkillBar;
 
         set
         {
-            _currentSkillBar = Mathf.Clamp(value, 0, 100);
-            specialSkillImage.color = _currentSkillBar < 100 ? Color.gray : Color.green;
+            _currentSkillBar = Mathf.Clamp(value, 0f, 100f);
             canActivateSkill = _currentSkillBar == maxSkillBar;
+            OnSpecialSkillBarChangedValue?.Invoke(_currentSkillBar, maxSkillBar);
         }
     }
-    public float NewMovementSpeed => _newMovementSpeed;
+
     public float RateOfFire_Bonus => _bonusRateOfFire;
 
     private void Start()
     {
         CurrentSkillBar = maxSkillBar;
-        PlayerShooting.OnPlayerStartReloading += () => canActivateSkill = false;
-        PlayerShooting.OnPlayerFinishedReloading += () => canActivateSkill = true;
+        PlayerShooting.OnPlayerStartReloading += CantActivateSkill;
+        PlayerShooting.OnPlayerFinishedReloading += CanActivateSkill;
+        Pickup.OnPickupTaken += HandlePickupTaken;
+    }
+
+    private void CanActivateSkill(int currentMaxCapacity)
+    {
+        canActivateSkill = true;
+    }
+
+    private void CantActivateSkill(float reloadTime)
+    {
+        canActivateSkill = false;
+    }
+
+    private void HandlePickupTaken(Pickup pickup)
+    {
+        if(pickup.pickupType is Pickup.PickupType.Star)
+        {
+            CurrentSkillBar += pickup.specialSkillBarAmount;
+        }
     }
 
     private void Update()
     {
         if(canActivateSkill && Input.GetKeyDown(KeyCode.Tab) && CurrentSkillBar >= maxSkillBar)
         {
-            CurrentSkillBar = 0;
             OnActivatedSkill?.Invoke(this);
             StartCoroutine(SkillCountdown());
         }
@@ -73,19 +74,25 @@ public class SpecialSkill : MonoBehaviour
 
     private void OnDestroy()
     {
-        PlayerShooting.OnPlayerStartReloading -= () => canActivateSkill = false;
-        PlayerShooting.OnPlayerFinishedReloading -= () => canActivateSkill = true;
+        PlayerShooting.OnPlayerStartReloading -= CantActivateSkill;
+        PlayerShooting.OnPlayerFinishedReloading -= CanActivateSkill;
+        Pickup.OnPickupTaken -= HandlePickupTaken;
     }
 
     private IEnumerator SkillCountdown()
     {
-        specialSkillImage.color = Color.yellow;
-        yield return new WaitForSeconds(_duration);
+        while (CurrentSkillBar > 0)
+        {
+            CurrentSkillBar -= Time.deltaTime * _duration;
+            yield return null;
+        }
+
         OnFinishedSkill?.Invoke();
         CurrentSkillBar = 0;
-        StartCoroutine(SkillReload());
+        //StartCoroutine(SkillReload());
     }
 
+    //Coroutine per quick testing (DA RIMUOVERE)
     IEnumerator SkillReload()
     {
         yield return new WaitForSeconds(1f);
