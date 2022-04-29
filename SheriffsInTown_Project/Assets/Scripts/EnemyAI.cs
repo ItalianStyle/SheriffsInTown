@@ -12,7 +12,10 @@ public class EnemyAI : MonoBehaviour
 
     [Tooltip("Danno a colpo che infligge il nemico al giocatore")]
     [SerializeField] int damage = 20;
-    
+
+    [Tooltip("Indica se questo nemico è il boss")]
+    [SerializeField] bool isBoss;
+
     bool playerDetected = false;
     PlayerHealthSystem playerHealth = null;
     NavMeshAgent agent = null;
@@ -55,7 +58,11 @@ public class EnemyAI : MonoBehaviour
             agent.isStopped = true;
             if (canShoot)
             {
-                //attack
+                Ray ray = new Ray();
+                ray.origin = transform.position;
+                ray.direction = playerHealth.transform.position - transform.position;
+
+                //if(Physics.Raycast(ray, attackDistance))//attack
                 playerHealth.CurrentHealth -= damage;
                 StartCoroutine(Reload());
             }
@@ -63,7 +70,6 @@ public class EnemyAI : MonoBehaviour
         else
         {
             agent.isStopped = false;
-            //transform.LookAt(target);
             agent.SetDestination(playerHealth.transform.position);
         }
     }
