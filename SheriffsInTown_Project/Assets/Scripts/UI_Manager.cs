@@ -1,8 +1,9 @@
 using System;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class UI_Manager : MonoBehaviour
 {
@@ -15,14 +16,34 @@ public class UI_Manager : MonoBehaviour
     //Riferimento al tasto per uscire dal gioco/dal menù di pausa
     Button exitBtn;
 
-    //Riferimento alla barra HP del personaggio
-    Image hpBar;
+    [Tooltip("Assegna dal project tab l'icona della stella brillante")]
+    [SerializeField] Sprite specialSkillActivated;
+    [Tooltip("Assegna dal project tab l'icona della stella normale")]
+    [SerializeField] Sprite specialSkillNormal;
+
+    [Tooltip("Colore che possiede la UI del proiettile non utilizzato")]
+    [SerializeField] Color bulletColor;
+
+
+    Image backgroundGunReload_L;    //Riferimento all'immagine di background per la ricarica della pistola sinistra
+    Image backgroundGunReload_R;    //Riferimento all'immagine di background per la ricarica della pistola destra
+
+    Image gunReload_L;  //Riferimento all'immagine della ricarica della pistola sinistra
+    Image gunReload_R;  //Riferimento all'immagine delle ricarica della pistola destra
+
+    TMP_Text munitionsText;
+
+    Image specialSkillImage;    //Riferimento all'immagine dell'abilità speciale
+    
+    Image hpBar;    //Riferimento alla barra HP del personaggio
 
     Image actionBar;    //Riferimento alla barra azione
 
     //Riferimento ai simboli della vita del personaggio
     Image[] lifeImages;
-    
+
+    Image[] bulletImages;  //Riferimento alle immagini dei proiettili per le munizioni
+
     //Riferimento al pannello della pausa
     CanvasGroup pausePanel;
 
@@ -30,6 +51,11 @@ public class UI_Manager : MonoBehaviour
     CanvasGroup lostPanel;
 
     CanvasGroup actionPanel;    //Riferimento al pannello azione
+
+    CanvasGroup hudPanel;   //Riferimento all'HUD
+
+
+    readonly string HUD_PanelString = "UI/HUD_Panel";
 
     public static UI_Manager instance;
 
@@ -85,18 +111,44 @@ public class UI_Manager : MonoBehaviour
                 if (!actionPanel)
                     actionPanel = GameObject.Find("UI/ActionPanel").GetComponent<CanvasGroup>();
 
+                if (!hudPanel)
+                    hudPanel = GameObject.Find(HUD_PanelString).GetComponent<CanvasGroup>();
+
                 if (!hpBar)
-                    hpBar = GameObject.Find("UI/HUD_Panel/HP_Bar_Background/HP_Bar").GetComponent<Image>();
+                    hpBar = hudPanel.transform.Find("HP_Bar_Background/HP_Bar").GetComponent<Image>();
 
                 if (!actionBar)
                     actionBar = actionPanel.transform.Find("Background").GetComponent<Image>();
 
+                if (!specialSkillImage)
+                    specialSkillImage = hudPanel.transform.Find("AbilitaSpecialeBackground/AbilitaSpecialeImmagine").GetComponent<Image>();
+
+                if (!backgroundGunReload_L)
+                    backgroundGunReload_L = hudPanel.transform.Find("MunizioniPanel/BackgroundMunizioniPistolaSX").GetComponent<Image>();
+
+                if (!backgroundGunReload_R)
+                    backgroundGunReload_R = hudPanel.transform.Find("MunizioniPanel/BackgroundMunizioniPistolaDX").GetComponent<Image>();
+
+                if (!gunReload_L)
+                    gunReload_L = backgroundGunReload_L.transform.Find("ImmagineMunizioniPistolaSX").GetComponent<Image>();
+
+                if (!gunReload_R)
+                    gunReload_R = backgroundGunReload_R.transform.Find("ImmagineMunizioniPistolaDX").GetComponent<Image>();
+
+                if (!munitionsText)
+                    munitionsText = hudPanel.transform.Find("MunizioniPanel/MunizioniText").GetComponent<TMP_Text>();
+
                 actionBar.fillAmount = 0;
+                gunReload_L.fillAmount = 1;
+                gunReload_R.fillAmount = 1;
+
                 FindLifeImages();
+                FindBulletImages();
 
                 SetCanvasGroup(pausePanel, false);
                 SetCanvasGroup(lostPanel, false);
                 SetCanvasGroup(actionPanel, false);
+                SetCanvasGroup(hudPanel, true);
 
                 HandleCursor(GameState.Gameplay);
 
@@ -120,11 +172,74 @@ public class UI_Manager : MonoBehaviour
                 PlayerHealthSystem.OnPlayerHealed += UpdateHP_Bar;
                 PlayerHealthSystem.OnPlayerHealthChanged += UpdateHP_Bar;
 
+                PlayerShooting.OnPlayerChangedFireMode += HandleLeftPistolIconAndMunitions;
+                PlayerShooting.OnShotFired += HandlePistolUI;
+                PlayerShooting.OnPlayerFinishedReloading += FillBulletImages;
+
+                //Interagisci con il pannello azione quando il giocatore interagisce nell'area della leva
                 Lever.OnPlayerNearLever += EnableActionPanel;
                 Lever.OnPlayerLeftLever += DisableActionPanel;
                 Lever.OnCompletedAction += DisableActionPanel;
+
+                //Modifica il pannello della barra stamina dell'abilità speciale quando cambia il suo stato
+                SpecialSkill.OnSpecialSkillBarChangedValue += HandleSpecialSkillIcon;
+                SpecialSkill.OnActivatedSkill += HandleSpecialSkillActivation;
+                SpecialSkill.OnFinishedSkill += HandleSpecialSkillDeactivation;
+
                 break;
         }
+    }
+
+    private void FillBulletImages(int currentMaxCapacity)
+    {
+        for (int i = 0; i < currentMaxCapacity; i++)
+            bulletImages[i].color = bulletColor;
+
+        munitionsText.text = $"{currentMaxCapacity} / {currentMaxCapacity}";
+    }
+
+    //Quando viene sparato un colpo gestisci la UI delle munizioni e ricarica
+    private void HandlePistolUI(bool isDoubleGunMode, float currentCapacity, float maxCapacity)
+    {
+        if(isDoubleGunMode)
+        {
+            gunReload_L.fillAmount = currentCapacity / maxCapacity;   
+        }
+        gunReload_R.fillAmount = currentCapacity / maxCapacity;
+
+        bulletImages[(int)currentCapacity].color = Color.gray;
+        
+        munitionsText.text = $"{currentCapacity} / {maxCapacity}";
+    }
+
+    private void HandleLeftPistolIconAndMunitions(bool isDoubleGunMode)
+    {
+        //Abilita/Disabilita l'icona della pistola sinistra
+        backgroundGunReload_L.enabled = isDoubleGunMode;
+        gunReload_L.enabled = isDoubleGunMode;
+
+        //Abilita/disabilita i proiettili per la pistola secondaria
+        for(int i = bulletImages.Length / 2; i < bulletImages.Length; i++)
+        {
+            bulletImages[i].enabled = isDoubleGunMode;
+            if (isDoubleGunMode)
+                bulletImages[i].color = Color.gray;
+        }
+    }
+
+    private void HandleSpecialSkillDeactivation()
+    {
+        specialSkillImage.sprite = specialSkillNormal;
+    }
+
+    private void HandleSpecialSkillActivation(SpecialSkill obj)
+    {
+        specialSkillImage.sprite = specialSkillActivated;
+    }
+
+    private void HandleSpecialSkillIcon(float currentAmount, float maxAmount)
+    {
+        specialSkillImage.fillAmount = currentAmount / maxAmount;
     }
 
     private void OnSceneUnloaded(Scene scene)
@@ -136,9 +251,14 @@ public class UI_Manager : MonoBehaviour
             PlayerHealthSystem.OnPlayerDamaged -= UpdateHP_Bar;
             PlayerHealthSystem.OnPlayerHealed -= UpdateHP_Bar;
             PlayerHealthSystem.OnPlayerHealthChanged -= UpdateHP_Bar;
+            PlayerShooting.OnPlayerChangedFireMode -= HandleLeftPistolIconAndMunitions;
+            PlayerShooting.OnShotFired -= HandlePistolUI;
             Lever.OnPlayerNearLever -= EnableActionPanel;
             Lever.OnPlayerLeftLever -= DisableActionPanel;
             Lever.OnCompletedAction -= DisableActionPanel;
+            SpecialSkill.OnSpecialSkillBarChangedValue -= HandleSpecialSkillIcon;
+            SpecialSkill.OnActivatedSkill -= HandleSpecialSkillActivation;
+            SpecialSkill.OnFinishedSkill -= HandleSpecialSkillDeactivation;
         }
     }
 
@@ -161,7 +281,7 @@ public class UI_Manager : MonoBehaviour
     {
         for(int i = 0; i < lifeImages.Length; i++)
         {
-            lifeImages[i].enabled = i <= (lifeCounts - 1);
+            lifeImages[i].color = i <= (lifeCounts - 1)? Color.white : Color.black;
         }
     }
 
@@ -172,6 +292,16 @@ public class UI_Manager : MonoBehaviour
         for(int i = 0; i < lifeImages.Length; i++)
         {
             lifeImages[i] = GameObject.Find("LifeImage_" + i).GetComponent<Image>();
+        }
+    }
+
+    private void FindBulletImages()
+    {
+        bulletImages = new Image[12];
+
+        for (int i = 0; i < bulletImages.Length; i++)
+        {
+            bulletImages[i] = hudPanel.transform.Find("MunizioniPanel/PallottolePanel/Pallottola_" + i).GetComponent<Image>();
         }
     }
 
@@ -219,6 +349,13 @@ public class UI_Manager : MonoBehaviour
     public void SetActionBarFillAmount(float currentAmount, float totalAmount)
     {
         actionBar.fillAmount = currentAmount / totalAmount;
+    }
+
+    public void SetReloadBarFillAmount(bool isDoubleGunMode, float currentAmount, float maxAmount)
+    {
+        if (isDoubleGunMode)
+            gunReload_L.fillAmount = currentAmount / maxAmount;
+        gunReload_R.fillAmount = currentAmount / maxAmount;
     }
 
     public static void SetCanvasGroup(CanvasGroup canvasGroup, bool canActive)
