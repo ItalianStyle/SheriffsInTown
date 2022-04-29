@@ -45042,14 +45042,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: CassaDropper
       objectReference: {fileID: 0}
-    - target: {fileID: 24135747375135327, guid: 62ecf001ca5b0014b9b5169e8bd866b0, type: 3}
-      propertyPath: dropHeal
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 24135747375135327, guid: 62ecf001ca5b0014b9b5169e8bd866b0, type: 3}
-      propertyPath: dropStar
-      value: 30
-      objectReference: {fileID: 0}
     - target: {fileID: 801200898991628519, guid: 62ecf001ca5b0014b9b5169e8bd866b0, type: 3}
       propertyPath: m_RootOrder
       value: 8
