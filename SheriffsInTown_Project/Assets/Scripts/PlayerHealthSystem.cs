@@ -9,7 +9,7 @@ public class PlayerHealthSystem : MonoBehaviour
     public static event Action<int, int> OnPlayerHealed = delegate { };
     public static event Action<int, int> OnPlayerHealthChanged = delegate { };
 
-    [SerializeField] int maxHealth = 100;
+    [SerializeField] int _maxHealth = 100;
     [SerializeField] int _currentHealth = 100;
 
     [SerializeField] int _totalLives = 3;
@@ -38,9 +38,9 @@ public class PlayerHealthSystem : MonoBehaviour
 
             //Invoco l'evento relativo se è stato ferito o curato
             if (oldHP > _currentHealth)
-                OnPlayerDamaged?.Invoke(_currentHealth, maxHealth);
+                OnPlayerDamaged?.Invoke(_currentHealth, _maxHealth);
             else
-                 OnPlayerHealed?.Invoke(_currentHealth, maxHealth);
+                 OnPlayerHealed?.Invoke(_currentHealth, _maxHealth);
 
             if (_currentHealth <= 0)
             {
@@ -58,25 +58,32 @@ public class PlayerHealthSystem : MonoBehaviour
                     RespawnManager.Instance.RespawnPlayer(gameObject);
                 }             
 
-                _currentHealth = maxHealth;
+                _currentHealth = _maxHealth;
             }
 
-            OnPlayerHealthChanged?.Invoke(_currentHealth, maxHealth);
+            OnPlayerHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
     }
+    public bool IsMaxHealth => _currentHealth == _maxHealth;
 
     public static PlayerHealthSystem instance;
 
     private void OnEnable()
     {
         instance = this;
-
-        //TriggerTrap.OnPlayerTrap += (damage) => SetCurrentHealth(damage);
-        CurrentHealth = maxHealth;
+        CurrentHealth = _maxHealth;
     }
 
-    private void OnDisable()
+    private void Start()
     {
-        //TriggerTrap.OnPlayerTrap -= (damage) => SetCurrentHealth(damage);
+        Pickup.OnPickupTaken += HandlePickup;
+    }
+
+    private void HandlePickup(Pickup pickup)
+    {
+        if(pickup.pickupType is Pickup.PickupType.Heal)
+        {
+            CurrentHealth += pickup.healthToRecover;
+        }
     }
 }
