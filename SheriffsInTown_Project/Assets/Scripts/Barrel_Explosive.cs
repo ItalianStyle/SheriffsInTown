@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ExplosiveBarrel : Barrel
+public class Barrel_Explosive : Barrel
 {
     [Tooltip("Danni che infligge l'esplosione")]
     [SerializeField] int damage;
