@@ -91,7 +91,7 @@ GameObject:
   - component: {fileID: 3520561465965736971}
   - component: {fileID: 3572815759631620041}
   m_Layer: 7
-  m_Name: Enemy
+  m_Name: Nemico
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
