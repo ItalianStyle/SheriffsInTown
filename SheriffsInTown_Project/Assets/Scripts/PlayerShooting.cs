@@ -7,10 +7,10 @@ using TMPro;
 
 public class PlayerShooting : MonoBehaviour
 {
-    public static event Action OnPlayerStartReloading = delegate { };
-    public static event Action OnPlayerFinishedReloading = delegate { };
-
-    //public static event Action<bool> OnShotFired = delegate { };
+    public static event Action<float> OnPlayerStartReloading = delegate { };
+    public static event Action<int> OnPlayerFinishedReloading = delegate { };
+    public static event Action<bool> OnPlayerChangedFireMode = delegate { };
+    public static event Action<bool, float, float> OnShotFired = delegate { };
 
     //[Tooltip("Quanto e' largo il cerchio di accuratezza")]
     //[SerializeField] float spreadLimit = 2.0f;
@@ -47,9 +47,7 @@ public class PlayerShooting : MonoBehaviour
 
     [Tooltip("Inserire qui i modelli delle due pistole:\n0 -> pistola sinistra\n1 -> pistola destra")]
     [SerializeField] MeshRenderer[] gunMeshes = new MeshRenderer[2];
-
-    [SerializeField] Image munitionsStateImage;
-    [SerializeField] TMP_Text munitionsText;
+    
     [SerializeField] ParticleSystem hitEffectPrefab = null;
 
     public int CurrentCapacity
@@ -62,8 +60,11 @@ public class PlayerShooting : MonoBehaviour
             //Limito il valore appena salvato nel range 0 e massima capacita'
             _currentCapacity = Mathf.Clamp(_currentCapacity, 0, _currentMaxCapacity);
 
-            //Aggiorna la UI relativa alle munizioni
-            UpdateMunitionsUI();
+            //Aggiorna la UI relativa alle munizioni se non ha ricaricato
+            if (_currentCapacity != _currentMaxCapacity)
+                OnShotFired?.Invoke(CurrentShootingMode.isDoubleGunType, _currentCapacity, _currentMaxCapacity);
+            else
+                OnPlayerFinishedReloading?.Invoke(_currentMaxCapacity);
         }
     }
 
@@ -89,7 +90,7 @@ public class PlayerShooting : MonoBehaviour
         isSkillActive = false;
         rateOfFireReference = rateOfFire;
 
-        SpecialSkill.OnActivatedSkill += (skill) => BoostShooting(skill);
+        SpecialSkill.OnActivatedSkill += BoostShooting;
         SpecialSkill.OnFinishedSkill += ResetShooting;
 
         GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
@@ -106,13 +107,13 @@ public class PlayerShooting : MonoBehaviour
         {
             //Ricarica tutta la clip dei proiettili
             StartCoroutine(Reload(isPlayerReloading: true));
-            OnPlayerStartReloading?.Invoke();
+            OnPlayerStartReloading?.Invoke(_currentReloadTime);
         }
         else if(Input.GetKeyDown(KeyCode.C))
         {
             //Cambia modalita' di sparo
             SetShootingMode(!CurrentShootingMode.isDoubleGunType);
-            UpdateMunitionsUI();
+            OnPlayerChangedFireMode?.Invoke(CurrentShootingMode.isDoubleGunType);
         }
 
         //Se la pistola ha almeno 1 munizione, e' passato il tempo di ricarica ed il giocatore sta premendo il tasto
@@ -132,7 +133,7 @@ public class PlayerShooting : MonoBehaviour
 
     private void OnDestroy()
     {
-        SpecialSkill.OnActivatedSkill -= (skill) => BoostShooting(skill);
+        SpecialSkill.OnActivatedSkill -= BoostShooting;
         SpecialSkill.OnFinishedSkill -= ResetShooting;
 
         GameStateManager.Instance.OnGameStateChanged -= OnGameStateChanged;
@@ -173,30 +174,19 @@ public class PlayerShooting : MonoBehaviour
         CurrentCapacity = Mathf.Clamp(CurrentCapacity, 0, _currentMaxCapacity);
     }
 
-    private void UpdateMunitionsUI()
-    {
-        //Aggiorna il riempimento dell'immagine della pistola
-        munitionsStateImage.fillAmount = (float) CurrentCapacity / _currentMaxCapacity;
-        
-        //Aggiorna il testo delle munizioni correnti
-        munitionsText.text = $"{CurrentCapacity} / {_currentMaxCapacity}";
-    }
-
     IEnumerator Reload(bool isPlayerReloading)
     {
         canShoot = false;
-        for (float timer = 0f; timer <= (isPlayerReloading ? _currentReloadTime : rateOfFire); timer += Time.deltaTime)
+        float timeToWait = isPlayerReloading ? _currentReloadTime : rateOfFire;
+        for (float timer = 0; timer < timeToWait; timer += Time.deltaTime)
         {
-            if(isPlayerReloading)
-                munitionsStateImage.fillAmount = timer / _currentReloadTime;
+            UI_Manager.instance.SetReloadBarFillAmount(CurrentShootingMode.isDoubleGunType, timer, timeToWait);
             yield return null;
         }
 
         if (isPlayerReloading)
-        {
             CurrentCapacity = CurrentShootingMode.maxCapacity;
-            OnPlayerFinishedReloading?.Invoke();
-        }
+        
         canShoot = true;
     }
 
@@ -221,16 +211,15 @@ public class PlayerShooting : MonoBehaviour
             //Distruggi l'effetto quando finisce l'effetto
             Destroy(effect.gameObject, effect.main.duration);
 
-            
+
             if (hit.collider.TryGetComponent(out EnemyHealthSystem healthSys))
-            {
                 healthSys.TakeDamage(_currentDamage);
-            }
-            else if(hit.collider.TryGetComponent(out Barrel barrel))
+
+            else if (hit.collider.TryGetComponent(out Barrel barrel))
             {
+                Debug.Log("Colpito barile");
                 barrel.Destroy();
             }
-            //OnShotFired?.Invoke(CompareTag("Player"));
         }
     }
 }
