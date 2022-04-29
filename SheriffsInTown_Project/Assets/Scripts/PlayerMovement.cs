@@ -45,8 +45,18 @@ namespace SheriffsInTown
             GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
 
             //GameManager.PlayerWonGame += () => enabled = false;
-            PlayerShooting.OnPlayerStartReloading += () => SetPlayerMovement(0);
-            PlayerShooting.OnPlayerFinishedReloading += () => SetPlayerMovement(normalMovementSpeed);
+            PlayerShooting.OnPlayerStartReloading += ForceStopPlayer;
+            PlayerShooting.OnPlayerFinishedReloading += SetNormalMovementSpeed;
+        }
+
+        private void SetNormalMovementSpeed(int currentMaxCapacity)
+        {
+            SetPlayerMovement(normalMovementSpeed);
+        }
+
+        private void ForceStopPlayer(float reloadTime)
+        {
+            SetPlayerMovement(0);
         }
 
         private void Update()
@@ -122,8 +132,8 @@ namespace SheriffsInTown
 
             //GameManager.PlayerWonGame -= () => enabled = false;
 
-            PlayerShooting.OnPlayerStartReloading -= () => SetPlayerMovement(0);
-            PlayerShooting.OnPlayerFinishedReloading -= () => SetPlayerMovement(normalMovementSpeed);
+            PlayerShooting.OnPlayerStartReloading -= ForceStopPlayer;
+            PlayerShooting.OnPlayerFinishedReloading -= SetNormalMovementSpeed;
         }
 
         private void SetPlayerMovement(float newMovementSpeed)
