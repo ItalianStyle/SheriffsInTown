@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 9207694080675888543}
   - component: {fileID: 9207694080675888542}
   m_Layer: 0
-  m_Name: stellaSceriffoPickup
+  m_Name: Pickup_Boccetta
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41,7 +41,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9207694080675888537}
-  m_Mesh: {fileID: 2419316845031738360, guid: 37d2dacf35b6adb419c5eba9177c52da, type: 3}
+  m_Mesh: {fileID: -4623359519546830899, guid: 0e9b2e22adf93d7449c7934c02ed87b6, type: 3}
 --- !u!23 &7262248511952428108
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 06c469628909f1442b9e622a5d8ef798, type: 2}
+  - {fileID: 2100000, guid: 8e0ddfdf858b7fa44aab43d8674b382e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -108,9 +108,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bf677840da3c73459f35ea8d59aa5df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupType: 2
+  pickupType: 3
   amplitude: 0.5
   frequency: 1
   rotationDirection: 1
   rotatingSpeed: 20
-  newReloadSpeed: 999
+  specialSkillBarAmount: 20
