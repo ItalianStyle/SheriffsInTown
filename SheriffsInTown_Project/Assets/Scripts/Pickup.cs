@@ -5,10 +5,13 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class Pickup : MonoBehaviour
 {
-    public static event Action<Pickup> OnPickupTaken = delegate { };
+    public static event Action<float> OnStarPickupTaken = delegate { };
+    public static event Action<int> OnHealPickupTaken = delegate { };
+    public static event Action OnHatPickupTaken = delegate { };
+    public static event Action OnGoldGunPickupTaken = delegate { };
 
     enum Direction { X, Y, Z }
-    public enum PickupType { NotDefined, Hat, Star, Heal }
+    public enum PickupType { NotDefined, Hat, GoldGun, Star, Heal }
 
     #region Variables
     // User Inputs
@@ -73,7 +76,7 @@ public class Pickup : MonoBehaviour
                     //Il giocatore raccoglie la stella solo quando la barra non è piena e non sta utilizzando l'abilità
                     if (!other.GetComponent<SpecialSkill>().canActivateSkill)
                     {
-                        OnPickupTaken?.Invoke(this);
+                        OnStarPickupTaken?.Invoke(specialSkillBarAmount);
                         gameObject.SetActive(false);
                     }
                     break;
@@ -82,12 +85,22 @@ public class Pickup : MonoBehaviour
                     //Il giocatore raccoglie la cura solo se non è full vita
                     if(!other.GetComponent<PlayerHealthSystem>().IsMaxHealth)
                     {
-                        OnPickupTaken?.Invoke(this);
+                        OnHealPickupTaken?.Invoke(healthToRecover);
                         gameObject.SetActive(false);
                     }
                     break;
-            }
-            
+
+                case PickupType.Hat:
+                    //Il giocatore raccoglie il cappello
+                    OnHatPickupTaken?.Invoke();
+                    gameObject.SetActive(false);
+                    break;
+
+                case PickupType.GoldGun:
+                    OnGoldGunPickupTaken?.Invoke();
+                    gameObject.SetActive(false);
+                    break;
+            }           
         }
     }
     #endregion
