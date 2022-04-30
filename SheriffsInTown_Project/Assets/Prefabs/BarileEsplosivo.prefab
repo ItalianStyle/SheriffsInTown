@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5183425628710556766}
   - component: {fileID: 4657056877463572401}
   - component: {fileID: 5183425628710556760}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BarileEsplosivo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28,7 +28,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5183425628710556763}
-  m_LocalRotation: {x: -0, y: 0.8249347, z: -0, w: 0.5652281}
+  m_LocalRotation: {x: 0, y: 0.8249359, z: 0, w: 0.56522626}
   m_LocalPosition: {x: -435.73, y: 102.07, z: -145.56}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []

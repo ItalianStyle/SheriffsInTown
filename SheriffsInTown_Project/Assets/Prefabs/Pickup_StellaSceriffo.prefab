@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7262248511952428108}
   - component: {fileID: 9207694080675888543}
   - component: {fileID: 9207694080675888542}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Pickup_StellaSceriffo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27,7 +27,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9207694080675888537}
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -443.92, y: 102.15, z: -144.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -113,4 +113,7 @@ MonoBehaviour:
   frequency: 1
   rotationDirection: 1
   rotatingSpeed: 20
-  newReloadSpeed: 999
+  specialSkillBarAmount: 20
+  healthToRecover: 10
+  newMovementSpeed: 0
+  newRunMovementSpeed: 0

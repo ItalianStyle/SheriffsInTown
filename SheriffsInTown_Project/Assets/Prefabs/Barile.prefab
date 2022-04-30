@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1039382698718631557}
   - component: {fileID: 3014760939302973682}
   - component: {fileID: 1039382698718631554}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Barile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28,7 +28,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1039382698718631556}
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -436.41214, y: 101.55, z: -148.85907}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7262248511952428108}
   - component: {fileID: 9207694080675888543}
   - component: {fileID: 9207694080675888542}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Pickup_PistolaDorata
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -115,3 +115,5 @@ MonoBehaviour:
   rotatingSpeed: 45
   specialSkillBarAmount: 20
   healthToRecover: 10
+  newMovementSpeed: 0
+  newRunMovementSpeed: 0
