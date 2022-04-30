@@ -201,8 +201,8 @@ public class PlayerShooting : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, _currentAttackRange, _layerMask))
         {
-            Debug.Log($"Colpito --> {hit.transform.name}");
-            Debug.DrawRay(ray.origin, ray.direction.normalized * (ray.origin - hit.point).magnitude, Color.red, 2f);
+            //Debug.Log($"Colpito --> {hit.transform.name}");
+            //Debug.DrawRay(ray.origin, ray.direction.normalized * (ray.origin - hit.point).magnitude, Color.red, 2f);
 
             //Crea l'effetto
             ParticleSystem effect = Instantiate(hitEffectPrefab);
