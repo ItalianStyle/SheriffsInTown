@@ -7,6 +7,18 @@ namespace SheriffsInTown
     public class PlayerMovement : MonoBehaviour
     {
         public enum MovementState { Walk, Run, Stopped }
+       
+        [Header("Camera")]
+        [Tooltip("Quanto velocemente gira la camera")]
+        [SerializeField] float rotationSensitivity;
+        [Tooltip("Rotazione con un angolo minimo raggiungibile dalla camera sull'asse X")]
+        [SerializeField] float minXAngle;
+        [Tooltip("Rotazione con un angolo massimo raggiungibile dalla camera sull'asse X")]
+        [SerializeField] float maxXAngle;
+
+        [Space][Header("Personaggio")]
+        
+        [Tooltip("Lo stato di movimento del personaggio")]
         public MovementState moveState;
 
         [Header("Movimento")]
@@ -33,14 +45,16 @@ namespace SheriffsInTown
 
         Camera cam; //Utilizzato per rendere il movimento dipendente dall'orientamento della camera
         CinemachineVirtualCamera virtualCamera; //Utilizzato per disabilitarlo quando si entra in pausa
-
+        Transform followTransform; //Utilizzato per ruotare la camera intorno al giocatore (https://www.youtube.com/watch?v=537B1kJp9YQ&ab_channel=Unity)
+        Vector2 rotation = Vector2.zero;
         CharacterController controller; //Utilizzato per muovere il personaggio
 
         private void Start()
         {
             //Prendo i riferimenti necessari
             cam = Camera.main;
-            virtualCamera = GameObject.Find("FollowPlayerCamera").GetComponent<CinemachineVirtualCamera>();
+            virtualCamera = GameObject.FindGameObjectWithTag("FollowCamera").GetComponent<CinemachineVirtualCamera>();
+            followTransform = transform.Find("FollowTarget");
             controller = GetComponent<CharacterController>();
 
             //Chiamo il metodo quando il giocatore mette in pausa il gioco o lo riprende
@@ -90,6 +104,17 @@ namespace SheriffsInTown
                 //Meccanica di corsa quando il giocatore preme lo shift sinistro
                 SetPlayerMovement(Input.GetKey(KeyCode.LeftShift) ? MovementState.Run : MovementState.Walk);              
             }
+
+            #region Follow Transform rotation
+            rotation.y += Input.GetAxis("Mouse X") * rotationSensitivity;
+            #endregion
+
+            #region Vertical Rotation
+            rotation.x += -Input.GetAxis("Mouse Y") * rotationSensitivity;
+
+            rotation.x = Mathf.Clamp(rotation.x, minXAngle, maxXAngle);
+            followTransform.rotation = Quaternion.Euler(rotation.x, rotation.y, 0f);
+            #endregion
         }
 
         void FixedUpdate()
