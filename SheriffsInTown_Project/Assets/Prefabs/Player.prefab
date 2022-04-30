@@ -313,9 +313,12 @@ MonoBehaviour:
   _layerMask:
     serializedVersion: 2
     m_Bits: 129
-  shootingModes:
+  normalShootingModes:
   - {fileID: 11400000, guid: 62970ac7bd488ae4baf43be0a3ea4bbb, type: 2}
   - {fileID: 11400000, guid: dd49fb27e7b4ba248a6628dbb0e04e69, type: 2}
+  upgradedShootingModes:
+  - {fileID: 11400000, guid: baf7a67960a50c44b9f6d566478fbf1a, type: 2}
+  - {fileID: 11400000, guid: 84c65ce8ab279b24a9299aa01466b8e3, type: 2}
   hitEffectPrefab: {fileID: 9081267665000915068, guid: 66aaee2355aa70940909f0ac7d20acc9, type: 3}
 --- !u!114 &2686439966367275902
 MonoBehaviour:
