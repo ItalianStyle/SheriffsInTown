@@ -7,7 +7,7 @@ public class Pickup : MonoBehaviour
 {
     public static event Action<float> OnStarPickupTaken = delegate { };
     public static event Action<int> OnHealPickupTaken = delegate { };
-    public static event Action OnHatPickupTaken = delegate { };
+    public static event Action<float, float> OnHatPickupTaken = delegate { };
     public static event Action OnGoldGunPickupTaken = delegate { };
 
     enum Direction { X, Y, Z }
@@ -32,8 +32,12 @@ public class Pickup : MonoBehaviour
     [Tooltip("Quantità di HP da recuperare quando il giocatore raccoglie la boccetta")]
     [SerializeField] [Min(0f)] int healthToRecover = 10;
 
-    [Tooltip("La velocità di base del player aumenta quando raccoglie il cappello")]
+    [Tooltip("La nuova velocità di base del player quando raccoglie il cappello")]
     [SerializeField] float newMovementSpeed;
+
+    [Tooltip("La nuova velocità di corsa del player quando raccoglie il cappello")]
+    [SerializeField] float newRunMovementSpeed;
+
 
     // Position Storage Variables
     Vector3 posOffset = new Vector3();
@@ -97,7 +101,7 @@ public class Pickup : MonoBehaviour
 
                 case PickupType.Hat:
                     //Il giocatore raccoglie il cappello
-                    OnHatPickupTaken?.Invoke();
+                    OnHatPickupTaken?.Invoke(newMovementSpeed, newRunMovementSpeed);
                     gameObject.SetActive(false);
                     break;
 
