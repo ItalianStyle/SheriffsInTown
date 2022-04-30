@@ -76,14 +76,16 @@ public class PlayerHealthSystem : MonoBehaviour
 
     private void Start()
     {
-        Pickup.OnPickupTaken += HandlePickup;
+        Pickup.OnHealPickupTaken += HandlePickup;
     }
 
-    private void HandlePickup(Pickup pickup)
+    private void OnDestroy()
     {
-        if(pickup.pickupType is Pickup.PickupType.Heal)
-        {
-            CurrentHealth += pickup.healthToRecover;
-        }
+        Pickup.OnHealPickupTaken -= HandlePickup;
+    }
+
+    private void HandlePickup(int healthToRecover)
+    {
+        CurrentHealth += healthToRecover;
     }
 }

@@ -42,7 +42,7 @@ public class SpecialSkill : MonoBehaviour
         CurrentSkillBar = maxSkillBar;
         PlayerShooting.OnPlayerStartReloading += CantActivateSkill;
         PlayerShooting.OnPlayerFinishedReloading += CanActivateSkill;
-        Pickup.OnPickupTaken += HandlePickupTaken;
+        Pickup.OnStarPickupTaken += HandlePickupTaken;
     }
 
     private void CanActivateSkill(bool isDoubleGunMode, int currentMaxCapacity)
@@ -55,12 +55,9 @@ public class SpecialSkill : MonoBehaviour
         canActivateSkill = false;
     }
 
-    private void HandlePickupTaken(Pickup pickup)
+    private void HandlePickupTaken(float specialSkillBarAmount)
     {
-        if(pickup.pickupType is Pickup.PickupType.Star)
-        {
-            CurrentSkillBar += pickup.specialSkillBarAmount;
-        }
+        CurrentSkillBar += specialSkillBarAmount;
     }
 
     private void Update()
@@ -76,7 +73,7 @@ public class SpecialSkill : MonoBehaviour
     {
         PlayerShooting.OnPlayerStartReloading -= CantActivateSkill;
         PlayerShooting.OnPlayerFinishedReloading -= CanActivateSkill;
-        Pickup.OnPickupTaken -= HandlePickupTaken;
+        Pickup.OnStarPickupTaken -= HandlePickupTaken;
     }
 
     private IEnumerator SkillCountdown()
