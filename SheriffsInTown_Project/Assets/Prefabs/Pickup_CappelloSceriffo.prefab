@@ -115,3 +115,5 @@ MonoBehaviour:
   rotatingSpeed: 45
   specialSkillBarAmount: 20
   healthToRecover: 10
+  newMovementSpeed: 15
+  newRunMovementSpeed: 30
