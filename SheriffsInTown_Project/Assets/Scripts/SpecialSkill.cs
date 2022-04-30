@@ -45,7 +45,7 @@ public class SpecialSkill : MonoBehaviour
         Pickup.OnPickupTaken += HandlePickupTaken;
     }
 
-    private void CanActivateSkill(int currentMaxCapacity)
+    private void CanActivateSkill(bool isDoubleGunMode, int currentMaxCapacity)
     {
         canActivateSkill = true;
     }

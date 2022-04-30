@@ -49,7 +49,7 @@ namespace SheriffsInTown
             PlayerShooting.OnPlayerFinishedReloading += SetNormalMovementSpeed;
         }
 
-        private void SetNormalMovementSpeed(int currentMaxCapacity)
+        private void SetNormalMovementSpeed(bool isDoubleGunMode, int currentMaxCapacity)
         {
             SetPlayerMovement(normalMovementSpeed);
         }
