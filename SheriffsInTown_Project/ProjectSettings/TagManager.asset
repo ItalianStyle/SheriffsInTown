@@ -13,6 +13,8 @@ TagManager:
   - LifeImage
   - RestartBtn
   - FxTemporaire
+  - FollowCamera
+  - FollowCameraTarget
   layers:
   - Default
   - TransparentFX
@@ -20,12 +22,12 @@ TagManager:
   - Barriera
   - Water
   - UI
-  - 
+  - Terreno
   - Enemy
   - BarrieraPerNemico
-  - 
-  - 
-  - 
+  - Prop
+  - Pickup
+  - Player
   - 
   - 
   - 
