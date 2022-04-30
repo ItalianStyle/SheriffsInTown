@@ -35,7 +35,7 @@ public class PlayerEquipment : MonoBehaviour
         Pickup.OnHatPickupTaken -= ShowHat;
     }
 
-    private void ShowHat()
+    private void ShowHat(float newMovementSpeed, float newRunMovementSpeed)
     {
         hatRenderer.enabled = true;
     }
