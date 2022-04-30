@@ -44,9 +44,6 @@ public class PlayerShooting : MonoBehaviour
 
     [Tooltip("Qui vanno le due modalita' di fuoco del personaggio")]
     [SerializeField] ShootingMode[] shootingModes;
-
-    [Tooltip("Inserire qui i modelli delle due pistole:\n0 -> pistola sinistra\n1 -> pistola destra")]
-    [SerializeField] MeshRenderer[] gunMeshes = new MeshRenderer[2];
     
     [SerializeField] ParticleSystem hitEffectPrefab = null;
 
@@ -114,8 +111,7 @@ public class PlayerShooting : MonoBehaviour
         else if(Input.GetKeyDown(KeyCode.C))
         {
             //Cambia modalita' di sparo
-            SetShootingMode(!CurrentShootingMode.isDoubleGunType);
-            OnPlayerChangedFireMode?.Invoke(CurrentShootingMode.isDoubleGunType);
+            SetShootingMode(!CurrentShootingMode.isDoubleGunType);   
         }
 
         //Se la pistola ha almeno 1 munizione, e' passato il tempo di ricarica ed il giocatore sta premendo il tasto
@@ -161,11 +157,6 @@ public class PlayerShooting : MonoBehaviour
         //Seleziono la modalita di sparo
         _currentShootingModeIndex = isDoubleShootingMode ? 0 : 1;
 
-        //Fai apparire la pistola (sulla mano sinistra) se la modalita di sparo e' doppia
-        gunMeshes[0].enabled = isDoubleShootingMode;
-        //Faccio apparire in ogni caso la pistola della mano destra
-        gunMeshes[1].enabled = true;
-
         //Aggiorno le statistiche del componente secondo la nuova modalita' di sparo
         _currentAttackRange = CurrentShootingMode.attackRange;
         _currentDamage = CurrentShootingMode.damage;
@@ -174,6 +165,8 @@ public class PlayerShooting : MonoBehaviour
         
         //Mi assicuro di limitare la capacita' della singola pistola quando si passa da modalita' doppia a singola
         CurrentCapacity = Mathf.Clamp(CurrentCapacity, 0, _currentMaxCapacity);
+
+        OnPlayerChangedFireMode?.Invoke(CurrentShootingMode.isDoubleGunType);
     }
 
     IEnumerator Reload(bool isPlayerReloading)
