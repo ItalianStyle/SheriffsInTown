@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: da536c063d3947e4f889d9f3d91ee677, type: 3}
-  m_Name: Single_Gun
+  m_Name: Single_NormalGun
   m_EditorClassIdentifier: 
   isDoubleGunType: 0
   maxCapacity: 6
   reloadTime: 1
   damage: 25
-  attackRange: 1000
+  attackRange: 30
