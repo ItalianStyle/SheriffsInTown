@@ -54,6 +54,7 @@ public class UI_Manager : MonoBehaviour
 
     CanvasGroup hudPanel;   //Riferimento all'HUD
 
+    bool isActionPanelActive;
 
     readonly string HUD_PanelString = "UI/HUD_Panel";
 
@@ -147,7 +148,7 @@ public class UI_Manager : MonoBehaviour
 
                 SetCanvasGroup(pausePanel, false);
                 SetCanvasGroup(lostPanel, false);
-                SetCanvasGroup(actionPanel, false);
+                DisableActionPanel();
                 SetCanvasGroup(hudPanel, true);
 
                 HandleCursor(GameState.Gameplay);
@@ -340,11 +341,12 @@ public class UI_Manager : MonoBehaviour
 
     private void HandleActionPanel(GameState newGameState)
     {
-        SetCanvasGroup(actionPanel, !(newGameState is GameState.Paused) && !(newGameState is GameState.Lost));
+        SetCanvasGroup(actionPanel, isActionPanelActive && newGameState is GameState.Gameplay);
     }
 
     void EnableActionPanel()
     {
+        isActionPanelActive = true;
         SetCanvasGroup(actionPanel, true);
     }
 
@@ -352,11 +354,11 @@ public class UI_Manager : MonoBehaviour
     {
         actionBar.fillAmount = 0f;
         SetCanvasGroup(actionPanel, false);
+        isActionPanelActive = false;
     }
 
     void SetActionBarFillAmount(float currentAmount, float totalAmount)
     {
-        Debug.Log("Action");
         actionBar.fillAmount = currentAmount / totalAmount;
     }
 
