@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3078518074043924912}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: BoccaDiFuocoDX
   m_TagString: Untagged
   m_Icon: {fileID: -5397416234189338067, guid: 0000000000000000d000000000000000, type: 0}
@@ -41,7 +41,7 @@ GameObject:
   - component: {fileID: 550923950331334573}
   - component: {fileID: 3461752972261589000}
   - component: {fileID: 1724433034458887362}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mesh_CappelloSceriffo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -122,7 +122,7 @@ GameObject:
   - component: {fileID: 4020801005678912081}
   - component: {fileID: 2217730113158382566}
   - component: {fileID: 4127496287533870380}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: PistolaDX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -202,7 +202,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1654023352261872608}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: BoccaDiFuocoSX
   m_TagString: Untagged
   m_Icon: {fileID: -5397416234189338067, guid: 0000000000000000d000000000000000, type: 0}
@@ -238,7 +238,7 @@ GameObject:
   - component: {fileID: 2686439966367275902}
   - component: {fileID: 8279715546757105530}
   - component: {fileID: 2562998142235481961}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -260,6 +260,7 @@ Transform:
   - {fileID: 6365172201224124304}
   - {fileID: 4020801005678912081}
   - {fileID: 2454942105082836981}
+  - {fileID: 7534356981314753726}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -293,7 +294,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1742f89090c8624488a2772ca517a521, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 10
+  rotationSensitivity: 2
+  minXAngle: -45
+  maxXAngle: 70
+  moveState: 0
+  normalMovementSpeed: 10
   runMovementSpeed: 20
   smoothRotationFactor: 0.1
   jumpForce: 18
@@ -379,7 +384,7 @@ GameObject:
   - component: {fileID: 6365172201224124304}
   - component: {fileID: 1646158770178669426}
   - component: {fileID: 8167136193946181013}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Mesh_Corpo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -460,7 +465,7 @@ GameObject:
   - component: {fileID: 2454942105082836981}
   - component: {fileID: 401601952864468425}
   - component: {fileID: 148139029433251586}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: PistolaSX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -531,3 +536,33 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &9080658595199573942
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7534356981314753726}
+  m_Layer: 11
+  m_Name: FollowTarget
+  m_TagString: FollowCameraTarget
+  m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7534356981314753726
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9080658595199573942}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.706, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4889762482718996968}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
