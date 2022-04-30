@@ -42,8 +42,11 @@ public class PlayerShooting : MonoBehaviour
 
     [Header("Riferimenti")]
 
-    [Tooltip("Qui vanno le due modalita' di fuoco del personaggio")]
-    [SerializeField] ShootingMode[] shootingModes;
+    [Tooltip("Qui vanno le due modalita' di fuoco delle pistole normali del personaggio\n0 -> modalità doppia\n1 -> modalità singola")]
+    [SerializeField] ShootingMode[] normalShootingModes;
+
+    [Tooltip("Qui vanno le due modalita' di fuoco delle pistole dorate del personaggio\n0 -> modalità doppia\n1 -> modalità singola")]
+    [SerializeField] ShootingMode[] upgradedShootingModes;
     
     [SerializeField] ParticleSystem hitEffectPrefab = null;
 
@@ -71,8 +74,9 @@ public class PlayerShooting : MonoBehaviour
 
     bool canShoot = true;   //Quando la pistola puo' sparare
     bool isSkillActive = true;
+    bool isNormalGunUsed = true;
 
-    ShootingMode CurrentShootingMode => shootingModes[_currentShootingModeIndex];
+    ShootingMode CurrentShootingMode => isNormalGunUsed ? normalShootingModes[_currentShootingModeIndex] : upgradedShootingModes[_currentShootingModeIndex];
     int _currentShootingModeIndex = 0;
 
     Camera cam;
@@ -83,16 +87,24 @@ public class PlayerShooting : MonoBehaviour
     {
         cam = Camera.main;
 
-        
         SetShootingMode(isDoubleShootingMode: true);
         CurrentCapacity = _currentMaxCapacity;
         isSkillActive = false;
+        isNormalGunUsed = true;
         rateOfFireReference = rateOfFire;
 
         SpecialSkill.OnActivatedSkill += BoostShooting;
         SpecialSkill.OnFinishedSkill += ResetShooting;
 
+        Pickup.OnGoldGunPickupTaken += SetGoldGunShootingMode;
+
         GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
+    }
+
+    private void SetGoldGunShootingMode()
+    {
+        isNormalGunUsed = false;
+        SetShootingMode(CurrentShootingMode.isDoubleGunType);
     }
 
     private void OnGameStateChanged(GameState newGameState)
@@ -104,6 +116,8 @@ public class PlayerShooting : MonoBehaviour
     {
         if(CurrentCapacity < _currentMaxCapacity && Input.GetKeyDown(KeyCode.R))
         {
+            //Ferma tutte le eventuali coroutine di ricarica
+            StopAllCoroutines();
             //Ricarica tutta la clip dei proiettili
             StartCoroutine(Reload(isPlayerReloading: true));
             OnPlayerStartReloading?.Invoke(_currentReloadTime);
@@ -154,6 +168,7 @@ public class PlayerShooting : MonoBehaviour
 
     void SetShootingMode(bool isDoubleShootingMode)
     {
+        int old = _currentShootingModeIndex;
         //Seleziono la modalita di sparo
         _currentShootingModeIndex = isDoubleShootingMode ? 0 : 1;
 
@@ -166,7 +181,8 @@ public class PlayerShooting : MonoBehaviour
         //Mi assicuro di limitare la capacita' della singola pistola quando si passa da modalita' doppia a singola
         CurrentCapacity = Mathf.Clamp(CurrentCapacity, 0, _currentMaxCapacity);
 
-        OnPlayerChangedFireMode?.Invoke(CurrentShootingMode.isDoubleGunType);
+        if(old != _currentShootingModeIndex)
+            OnPlayerChangedFireMode?.Invoke(CurrentShootingMode.isDoubleGunType);
     }
 
     IEnumerator Reload(bool isPlayerReloading)
