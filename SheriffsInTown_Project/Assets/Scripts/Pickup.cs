@@ -26,13 +26,18 @@ public class Pickup : MonoBehaviour
     [SerializeField] float rotatingSpeed = 0f;
 
     [Header("PowerUp properties")]
-    public float specialSkillBarAmount = 20f;
-    public int healthToRecover = 10;
+    [Tooltip("Quantità da recuperare per la barra dell'abilità speciale quando il player raccoglie la stella")]
+    [SerializeField] [Range(0f,100f)] float specialSkillBarAmount = 20f;
+
+    [Tooltip("Quantità di HP da recuperare quando il giocatore raccoglie la boccetta")]
+    [SerializeField] [Min(0f)] int healthToRecover = 10;
+
+    [Tooltip("La velocità di base del player aumenta quando raccoglie il cappello")]
+    [SerializeField] float newMovementSpeed;
 
     // Position Storage Variables
     Vector3 posOffset = new Vector3();
     Vector3 tempPos = new Vector3();
-
     #endregion
 
     #region Unity Methods
@@ -97,6 +102,7 @@ public class Pickup : MonoBehaviour
                     break;
 
                 case PickupType.GoldGun:
+                    //Il giocatore raccoglie la pistola dorata
                     OnGoldGunPickupTaken?.Invoke();
                     gameObject.SetActive(false);
                     break;
