@@ -8,6 +8,7 @@ public class Lever : MonoBehaviour
     public static event Action OnPlayerNearLever = delegate { };
     public static event Action OnPlayerLeftLever = delegate { };
     public static event Action OnCompletedAction = delegate { };
+    public static event Action<float, float> OnCurrentPressedKeyTimeChanged = delegate { };
 
     [Tooltip("Riferimento al ponte a cui è collegata questa leva")]
     [SerializeField] Gate connectedGate;
@@ -59,8 +60,9 @@ public class Lever : MonoBehaviour
                 if(Input.GetKey(KeyCode.E))
                 {
                     currentTimeKeyPressed += Time.deltaTime;
-                    UI_Manager.instance.SetActionBarFillAmount(currentTimeKeyPressed, maxTimeToPress);
-                    if(currentTimeKeyPressed >= maxTimeToPress)
+                    currentTimeKeyPressed = Mathf.Clamp(currentTimeKeyPressed, 0, maxTimeToPress);
+                    OnCurrentPressedKeyTimeChanged?.Invoke(currentTimeKeyPressed, maxTimeToPress);
+                    if (currentTimeKeyPressed >= maxTimeToPress)
                     {
                         OnCompletedAction?.Invoke();
                         leverAnimator.SetTrigger("CanLowerLever");
@@ -72,13 +74,7 @@ public class Lever : MonoBehaviour
                 else
                 {
                     currentTimeKeyPressed = 0;
-                    UI_Manager.instance.SetActionBarFillAmount(currentTimeKeyPressed, maxTimeToPress);
                 }
-            }
-            else
-            {
-                currentTimeKeyPressed = 0;
-                UI_Manager.instance.SetActionBarFillAmount(currentTimeKeyPressed, maxTimeToPress);
             }
         }
     }

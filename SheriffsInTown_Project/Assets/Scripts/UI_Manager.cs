@@ -180,6 +180,7 @@ public class UI_Manager : MonoBehaviour
                 Lever.OnPlayerNearLever += EnableActionPanel;
                 Lever.OnPlayerLeftLever += DisableActionPanel;
                 Lever.OnCompletedAction += DisableActionPanel;
+                Lever.OnCurrentPressedKeyTimeChanged += SetActionBarFillAmount;
 
                 //Modifica il pannello della barra stamina dell'abilità speciale quando cambia il suo stato
                 SpecialSkill.OnSpecialSkillBarChangedValue += HandleSpecialSkillIcon;
@@ -261,6 +262,7 @@ public class UI_Manager : MonoBehaviour
             Lever.OnPlayerNearLever -= EnableActionPanel;
             Lever.OnPlayerLeftLever -= DisableActionPanel;
             Lever.OnCompletedAction -= DisableActionPanel;
+            Lever.OnCurrentPressedKeyTimeChanged -= SetActionBarFillAmount;
             SpecialSkill.OnSpecialSkillBarChangedValue -= HandleSpecialSkillIcon;
             SpecialSkill.OnActivatedSkill -= HandleSpecialSkillActivation;
             SpecialSkill.OnFinishedSkill -= HandleSpecialSkillDeactivation;
@@ -348,11 +350,13 @@ public class UI_Manager : MonoBehaviour
 
     void DisableActionPanel()
     {
+        actionBar.fillAmount = 0f;
         SetCanvasGroup(actionPanel, false);
     }
 
-    public void SetActionBarFillAmount(float currentAmount, float totalAmount)
+    void SetActionBarFillAmount(float currentAmount, float totalAmount)
     {
+        Debug.Log("Action");
         actionBar.fillAmount = currentAmount / totalAmount;
     }
 
