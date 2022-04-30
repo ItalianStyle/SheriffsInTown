@@ -172,9 +172,9 @@ public class UI_Manager : MonoBehaviour
                 PlayerHealthSystem.OnPlayerHealed += UpdateHP_Bar;
                 PlayerHealthSystem.OnPlayerHealthChanged += UpdateHP_Bar;
 
-                PlayerShooting.OnPlayerChangedFireMode += HandleLeftPistolIconAndMunitions;
-                PlayerShooting.OnShotFired += HandlePistolUI;
-                PlayerShooting.OnPlayerFinishedReloading += FillBulletImages;
+                PlayerShooting.OnPlayerChangedFireMode += UpdateGunsUI_Appearance;
+                PlayerShooting.OnShotFired += UpdateGunsUI_Values;
+                PlayerShooting.OnPlayerFinishedReloading += FillGunsUI;
 
                 //Interagisci con il pannello azione quando il giocatore interagisce nell'area della leva
                 Lever.OnPlayerNearLever += EnableActionPanel;
@@ -190,29 +190,34 @@ public class UI_Manager : MonoBehaviour
         }
     }
 
-    private void FillBulletImages(int currentMaxCapacity)
+    private void FillGunsUI(bool isDoubleGunMode, int currentMaxCapacity)
     {
         for (int i = 0; i < currentMaxCapacity; i++)
             bulletImages[i].color = bulletColor;
 
+        if(isDoubleGunMode)
+        {
+            gunReload_L.fillAmount = 1f;
+        }
+        gunReload_R.fillAmount = 1f;
         munitionsText.text = $"{currentMaxCapacity} / {currentMaxCapacity}";
     }
 
     //Quando viene sparato un colpo gestisci la UI delle munizioni e ricarica
-    private void HandlePistolUI(bool isDoubleGunMode, float currentCapacity, float maxCapacity)
+    private void UpdateGunsUI_Values(bool isDoubleGunMode, float currentCapacity, float maxCapacity)
     {
         if(isDoubleGunMode)
         {
-            gunReload_L.fillAmount = currentCapacity / maxCapacity;   
+            gunReload_L.fillAmount = currentCapacity / maxCapacity;
         }
         gunReload_R.fillAmount = currentCapacity / maxCapacity;
-
         bulletImages[(int)currentCapacity].color = Color.gray;
         
         munitionsText.text = $"{currentCapacity} / {maxCapacity}";
     }
 
-    private void HandleLeftPistolIconAndMunitions(bool isDoubleGunMode)
+    //In base alla modalità di sparo scelta, vengono aggiunte o tolte le icone necessarie
+    private void UpdateGunsUI_Appearance(bool isDoubleGunMode)
     {
         //Abilita/Disabilita l'icona della pistola sinistra
         backgroundGunReload_L.enabled = isDoubleGunMode;
@@ -251,8 +256,8 @@ public class UI_Manager : MonoBehaviour
             PlayerHealthSystem.OnPlayerDamaged -= UpdateHP_Bar;
             PlayerHealthSystem.OnPlayerHealed -= UpdateHP_Bar;
             PlayerHealthSystem.OnPlayerHealthChanged -= UpdateHP_Bar;
-            PlayerShooting.OnPlayerChangedFireMode -= HandleLeftPistolIconAndMunitions;
-            PlayerShooting.OnShotFired -= HandlePistolUI;
+            PlayerShooting.OnPlayerChangedFireMode -= UpdateGunsUI_Appearance;
+            PlayerShooting.OnShotFired -= UpdateGunsUI_Values;
             Lever.OnPlayerNearLever -= EnableActionPanel;
             Lever.OnPlayerLeftLever -= DisableActionPanel;
             Lever.OnCompletedAction -= DisableActionPanel;

@@ -8,7 +8,7 @@ using TMPro;
 public class PlayerShooting : MonoBehaviour
 {
     public static event Action<float> OnPlayerStartReloading = delegate { };
-    public static event Action<int> OnPlayerFinishedReloading = delegate { };
+    public static event Action<bool, int> OnPlayerFinishedReloading = delegate { };
     public static event Action<bool> OnPlayerChangedFireMode = delegate { };
     public static event Action<bool, float, float> OnShotFired = delegate { };
 
@@ -61,10 +61,11 @@ public class PlayerShooting : MonoBehaviour
             _currentCapacity = Mathf.Clamp(_currentCapacity, 0, _currentMaxCapacity);
 
             //Aggiorna la UI relativa alle munizioni se non ha ricaricato
-            if (_currentCapacity != _currentMaxCapacity)
+            if (_currentCapacity != _currentMaxCapacity) 
                 OnShotFired?.Invoke(CurrentShootingMode.isDoubleGunType, _currentCapacity, _currentMaxCapacity);
+                
             else
-                OnPlayerFinishedReloading?.Invoke(_currentMaxCapacity);
+                OnPlayerFinishedReloading?.Invoke(CurrentShootingMode.isDoubleGunType, _currentMaxCapacity);     
         }
     }
 
@@ -85,6 +86,7 @@ public class PlayerShooting : MonoBehaviour
     {
         cam = Camera.main;
 
+        
         SetShootingMode(isDoubleShootingMode: true);
         CurrentCapacity = _currentMaxCapacity;
         isSkillActive = false;
