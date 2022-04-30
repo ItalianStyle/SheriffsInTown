@@ -1,16 +1,21 @@
 using UnityEngine;
 using Cinemachine;
+using System;
 
 namespace SheriffsInTown
 {
     public class PlayerMovement : MonoBehaviour
     {
+        public enum MovementState { Walk, Run, Stopped }
+        public MovementState moveState;
+
         [Header("Movimento")]
-        [Tooltip("Velocita' di movimento del personaggio")]
-        [SerializeField] float movementSpeed = 10f;
+        [Tooltip("Velocità di movimento del personaggio quando cammina")]
+        [SerializeField] float normalMovementSpeed = 10f;
+
         [Tooltip("Velocità di movimento del personaggio quando corre")]
         [SerializeField] float runMovementSpeed = 20f;
-        float normalMovementSpeed;
+        float currentMovementSpeed = 10f;   //Velocita' di movimento attuale del personaggio
 
         [Header("Rotazione")]
         [Tooltip("Quanto velocemente ruota il personaggio verso una nuova direzione")]
@@ -25,7 +30,6 @@ namespace SheriffsInTown
         Vector3 gravity = new Vector3(0, -9.81f, 0);    //Vettore di gravità standard
 
         bool isShotButtonPressed = false;
-        bool canMove = true;
 
         Camera cam; //Utilizzato per rendere il movimento dipendente dall'orientamento della camera
         CinemachineVirtualCamera virtualCamera; //Utilizzato per disabilitarlo quando si entra in pausa
@@ -39,29 +43,35 @@ namespace SheriffsInTown
             virtualCamera = GameObject.Find("FollowPlayerCamera").GetComponent<CinemachineVirtualCamera>();
             controller = GetComponent<CharacterController>();
 
-            normalMovementSpeed = movementSpeed;
-
             //Chiamo il metodo quando il giocatore mette in pausa il gioco o lo riprende
             GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
 
-            //GameManager.PlayerWonGame += () => enabled = false;
-            PlayerShooting.OnPlayerStartReloading += ForceStopPlayer;
-            PlayerShooting.OnPlayerFinishedReloading += SetNormalMovementSpeed;
+            PlayerShooting.OnPlayerStartReloading += LockPlayerMovement;
+            PlayerShooting.OnPlayerFinishedReloading += UnlockPlayerMovement;
+
+            Pickup.OnHatPickupTaken += BoostMovementSpeed;
         }
 
-        private void SetNormalMovementSpeed(bool isDoubleGunMode, int currentMaxCapacity)
+        private void BoostMovementSpeed(float newMovementSpeed, float newRunMovementSpeed)
         {
-            SetPlayerMovement(normalMovementSpeed);
+            //Applica i nuovi valori potenziati
+            normalMovementSpeed = newMovementSpeed;
+            runMovementSpeed = newRunMovementSpeed;
         }
 
-        private void ForceStopPlayer(float reloadTime)
+        private void UnlockPlayerMovement(bool isDoubleGunMode, int currentMaxCapacity)
         {
-            SetPlayerMovement(0);
+            SetPlayerMovement(MovementState.Walk);
+        }
+
+        private void LockPlayerMovement(float reloadTime)
+        {
+            SetPlayerMovement(MovementState.Stopped);
         }
 
         private void Update()
         {
-            if (canMove)
+            if (moveState != MovementState.Stopped)
             {
                 //Salvo gli input del giocatore nel vettore
                 input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
@@ -78,7 +88,7 @@ namespace SheriffsInTown
                 }
 
                 //Meccanica di corsa quando il giocatore preme lo shift sinistro
-                SetPlayerMovement(Input.GetKey(KeyCode.LeftShift) ? runMovementSpeed : normalMovementSpeed);              
+                SetPlayerMovement(Input.GetKey(KeyCode.LeftShift) ? MovementState.Run : MovementState.Walk);              
             }
         }
 
@@ -91,7 +101,7 @@ namespace SheriffsInTown
             //Determino l'orientamento di movimento del giocatore facendo ruotare di "cam.transform.eulerAngles.y" gradi il vettore di input
             Vector3 moveDir = Quaternion.Euler(0, cam.transform.eulerAngles.y, 0) * input;
 
-            controller.Move(moveDir.normalized * movementSpeed * Time.deltaTime + gravity * Time.deltaTime);
+            controller.Move(moveDir.normalized * currentMovementSpeed * Time.deltaTime + gravity * Time.deltaTime);
 
             //Faccio ruotare il personaggio solo quando il giocatore preme uno o piu tasti di input di movimento
             if (input.magnitude >= .1f && !isShotButtonPressed)
@@ -132,14 +142,27 @@ namespace SheriffsInTown
 
             //GameManager.PlayerWonGame -= () => enabled = false;
 
-            PlayerShooting.OnPlayerStartReloading -= ForceStopPlayer;
-            PlayerShooting.OnPlayerFinishedReloading -= SetNormalMovementSpeed;
+            PlayerShooting.OnPlayerStartReloading -= LockPlayerMovement;
+            PlayerShooting.OnPlayerFinishedReloading -= UnlockPlayerMovement;
         }
 
-        private void SetPlayerMovement(float newMovementSpeed)
+        private void SetPlayerMovement(MovementState movementState)
         {
-            canMove = newMovementSpeed > 0;
-            movementSpeed = newMovementSpeed;
+            moveState = movementState;
+            switch(moveState)
+            {
+                case MovementState.Walk:
+                    currentMovementSpeed = normalMovementSpeed;
+                    break;
+
+                case MovementState.Run:
+                    currentMovementSpeed = runMovementSpeed;
+                    break;
+
+                case MovementState.Stopped:
+                    currentMovementSpeed = 0f;
+                    break;
+            }
         }
 
         private void OnGameStateChanged(GameState newGameState)
