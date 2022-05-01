@@ -1,17 +1,17 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
-using Random = UnityEngine.Random;
-using TMPro;
 
 public class PlayerShooting : MonoBehaviour
 {
+    #region Eventi
     public static event Action<float> OnPlayerStartReloading = delegate { };
     public static event Action<bool, int> OnPlayerFinishedReloading = delegate { };
     public static event Action<bool> OnPlayerChangedFireMode = delegate { };
     public static event Action<bool, float, float> OnShotFired = delegate { };
+    #endregion Eventi
 
+    #region Variabili per l'inspector
     //[Tooltip("Quanto e' largo il cerchio di accuratezza")]
     //[SerializeField] float spreadLimit = 2.0f;
 
@@ -22,6 +22,21 @@ public class PlayerShooting : MonoBehaviour
     [Tooltip("Quali layer puo' colpire il giocatore con il raycast?")]
     [SerializeField] LayerMask _layerMask;
 
+    [Header("Riferimenti")]
+
+    [Tooltip("Qui vanno le due modalita' di fuoco delle pistole normali del personaggio\n0 -> modalità doppia\n1 -> modalità singola")]
+    [SerializeField] ShootingMode[] normalShootingModes;
+
+    [Tooltip("Qui vanno le due modalita' di fuoco delle pistole dorate del personaggio\n0 -> modalità doppia\n1 -> modalità singola")]
+    [SerializeField] ShootingMode[] upgradedShootingModes;
+
+    [Tooltip("Serve a posizionare l'effetto particellare di sparo")]
+    [SerializeField] Transform muzzleFlashDXTransform;
+    [Tooltip("Serve a posizionare l'effetto particellare di sparo")]
+    [SerializeField] Transform muzzleFlashSXTransform;
+    #endregion Variabili per l'inspector
+
+    #region Variabili private
     //Variabile di appoggio per salvare il valore standard del rateo di fuoco quando si attiva l'abilita' speciale
     float rateOfFireReference;
 
@@ -40,16 +55,19 @@ public class PlayerShooting : MonoBehaviour
     //Tempo impiegato per ricaricare tutta la clip di proiettili
     float _currentReloadTime;
 
-    [Header("Riferimenti")]
+    bool canShoot = true;   //Quando la pistola puo' sparare
+    bool isRightGunShoot = true;    //Definisce su quale pistola posizionare il particellare di sparo
+    bool isSkillActive = true;
+    bool isNormalGunUsed = true;
 
-    [Tooltip("Qui vanno le due modalita' di fuoco delle pistole normali del personaggio\n0 -> modalità doppia\n1 -> modalità singola")]
-    [SerializeField] ShootingMode[] normalShootingModes;
+    int _currentShootingModeIndex = 0;
 
-    [Tooltip("Qui vanno le due modalita' di fuoco delle pistole dorate del personaggio\n0 -> modalità doppia\n1 -> modalità singola")]
-    [SerializeField] ShootingMode[] upgradedShootingModes;
-    
-    [SerializeField] ParticleSystem hitEffectPrefab = null;
+    Camera cam;
+    Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+    //+ new Vector3(Random.insideUnitCircle.x, Random.insideUnitCircle.y, 0) * spreadLimit;
+    #endregion Variabili private
 
+    #region Proprietà
     public int CurrentCapacity
     {
         get => _currentCapacity;
@@ -68,25 +86,20 @@ public class PlayerShooting : MonoBehaviour
                 OnPlayerFinishedReloading?.Invoke(CurrentShootingMode.isDoubleGunType, _currentMaxCapacity);     
         }
     }
-
     public float AttackRange => _currentAttackRange;
     public LayerMask LayerMask => _layerMask;
-
-    bool canShoot = true;   //Quando la pistola puo' sparare
-    bool isSkillActive = true;
-    bool isNormalGunUsed = true;
-
     ShootingMode CurrentShootingMode => isNormalGunUsed ? normalShootingModes[_currentShootingModeIndex] : upgradedShootingModes[_currentShootingModeIndex];
-    int _currentShootingModeIndex = 0;
+    #endregion Proprietà
 
-    Camera cam;
-    Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
-                         //+ new Vector3(Random.insideUnitCircle.x, Random.insideUnitCircle.y, 0) * spreadLimit;
+    #region Metodi Unity
+
+    private void Awake()
+    {
+        cam = Camera.main;
+    }
 
     private void Start()
     {
-        cam = Camera.main;
-
         SetShootingMode(isDoubleShootingMode: true);
         CurrentCapacity = _currentMaxCapacity;
         isSkillActive = false;
@@ -99,17 +112,6 @@ public class PlayerShooting : MonoBehaviour
         Pickup.OnGoldGunPickupTaken += SetGoldGunShootingMode;
 
         GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
-    }
-
-    private void SetGoldGunShootingMode()
-    {
-        isNormalGunUsed = false;
-        SetShootingMode(CurrentShootingMode.isDoubleGunType);
-    }
-
-    private void OnGameStateChanged(GameState newGameState)
-    {
-        enabled = newGameState == GameState.Gameplay;
     }
 
     void Update()
@@ -150,11 +152,17 @@ public class PlayerShooting : MonoBehaviour
 
         GameStateManager.Instance.OnGameStateChanged -= OnGameStateChanged;
     }
+    #endregion Metodi Unity
 
+    #region Metodi gestione eventi
     void BoostShooting(SpecialSkill skill)
     {
+        //Annullo l'eventuale ricarica in corso
+        StopAllCoroutines();
+        canShoot = true;
+
         isSkillActive = true;
-        // Rate of fire final = rate of fire - % 
+        // Rateo di fuoco finale = rateo iniziale - % bonus applicato dalla skill 
         rateOfFire -= rateOfFire * skill.RateOfFire_Bonus;
         if (rateOfFire < .1f)
             rateOfFire = .1f;
@@ -165,6 +173,21 @@ public class PlayerShooting : MonoBehaviour
         isSkillActive = false;
         rateOfFire = rateOfFireReference;
     }
+
+
+    private void SetGoldGunShootingMode()
+    {
+        isNormalGunUsed = false;
+        SetShootingMode(CurrentShootingMode.isDoubleGunType);
+    }
+
+    private void OnGameStateChanged(GameState newGameState)
+    {
+        enabled = newGameState == GameState.Gameplay;
+    }
+    #endregion Metodi gestione eventi
+
+    #region Metodi personali
 
     void SetShootingMode(bool isDoubleShootingMode)
     {
@@ -185,22 +208,6 @@ public class PlayerShooting : MonoBehaviour
             OnPlayerChangedFireMode?.Invoke(CurrentShootingMode.isDoubleGunType);
     }
 
-    IEnumerator Reload(bool isPlayerReloading)
-    {
-        canShoot = false;
-        float timeToWait = isPlayerReloading ? _currentReloadTime : rateOfFire;
-        for (float timer = 0; timer < timeToWait; timer += Time.deltaTime)
-        {
-            UI_Manager.instance.SetReloadBarFillAmount(CurrentShootingMode.isDoubleGunType, timer, timeToWait);
-            yield return null;
-        }
-
-        if (isPlayerReloading)
-            CurrentCapacity = CurrentShootingMode.maxCapacity;
-        
-        canShoot = true;
-    }
-
     void Shoot()
     {
         //http://codesaying.com/understanding-screen-point-world-point-and-viewport-point-in-unity3d/
@@ -213,24 +220,48 @@ public class PlayerShooting : MonoBehaviour
             //Debug.Log($"Colpito --> {hit.transform.name}");
             //Debug.DrawRay(ray.origin, ray.direction.normalized * (ray.origin - hit.point).magnitude, Color.red, 2f);
 
-            //Crea l'effetto
-            ParticleSystem effect = Instantiate(hitEffectPrefab);
-
-            //Posiziona l'effetto sul punto di impatto
-            effect.transform.position = hit.point;
-
-            //Distruggi l'effetto quando finisce l'effetto
-            Destroy(effect.gameObject, effect.main.duration);
-
+            Transform currentMuzzleFlash;
+            if (CurrentShootingMode.isDoubleGunType)
+            {
+                currentMuzzleFlash = isRightGunShoot ? muzzleFlashDXTransform : muzzleFlashSXTransform;
+                isRightGunShoot = !isRightGunShoot;
+            }
+            else
+            {
+                currentMuzzleFlash = muzzleFlashDXTransform;
+                isRightGunShoot = false;
+            }
+            ShootFX_Manager.PlayMuzzleFlashFX(currentMuzzleFlash);
+            ShootFX_Manager.PlayBulletHitFX(hit.point);
 
             if (hit.collider.TryGetComponent(out EnemyHealthSystem healthSys))
                 healthSys.TakeDamage(_currentDamage);
 
             else if (hit.collider.TryGetComponent(out Barrel barrel))
             {
-                Debug.Log("Colpito barile");
                 barrel.Destroy();
             }
         }
     }
+
+    
+    #endregion Metodi personali
+
+    #region Coroutines
+    IEnumerator Reload(bool isPlayerReloading)
+    {
+        canShoot = false;
+        float timeToWait = isPlayerReloading ? _currentReloadTime : rateOfFire;
+        for (float timer = 0; timer < timeToWait; timer += Time.deltaTime)
+        {
+            UI_Manager.instance.SetReloadBarFillAmount(CurrentShootingMode.isDoubleGunType, timer, timeToWait);
+            yield return null;
+        }
+
+        if (isPlayerReloading)
+            CurrentCapacity = CurrentShootingMode.maxCapacity;
+
+        canShoot = true;
+    }
+    #endregion Coroutines
 }
