@@ -1,52 +1,70 @@
+//Source: https://www.raywenderlich.com/847-object-pooling-in-unity#toc-anchor-002
+
 using System.Collections.Generic;
 using UnityEngine;
+/// <summary>
+/// Sistema di Object pooling per gli oggetti da lanciare
+/// </summary>
 
+//Classe per il singolo oggetto copiabile
+[System.Serializable]
+public class ObjectPoolItem
+{
+    public GameObject objectToPool;     //Il vero e proprio oggetto da rendere copiabile
+    public int amountToPool;    //Quantità iniziale da instanziare
+    public bool shouldExpand = true;     //Flag per rendere la lista espandibile a runtime
+}
+
+//Classe contenente una istanza pubblica e statica per creare più liste di oggetti identici
 public class ObjectPooler : MonoBehaviour
 {
-    [SerializeField] GameObject oggettoDaCollezionare;
-    [SerializeField] int grandezzaPool;
-    [SerializeField] bool ingrandisciPool;
-    List<GameObject> pool;
-    public static ObjectPooler Istanza;
+    public List<ObjectPoolItem> itemsToPool;     //Lista di oggetti da copiare
+    public List<GameObject> pooledObjects;      //Lista dell'oggetto e delle sue copie
+    public static ObjectPooler SharedInstance;      //Istanza per accedere agli oggetti del pooler
 
     private void Awake()
     {
-        Istanza = this;
+        SharedInstance = this;
     }
 
-    private void Start()
+    //Si crea una lista di oggetti copia per ogni oggetto da poolizzare
+    void Start()
     {
-        pool = new List<GameObject>(); // Inizializza la lista degli oggetti da utilizzare
-        for (int i = 0; i < grandezzaPool; i++) // Istanzia tutte le copie nella scena
+        pooledObjects = new List<GameObject>();
+        foreach (ObjectPoolItem item in itemsToPool)
         {
-            IstanziaOggettoDelPool();
-        }
-    }
-
-    private GameObject IstanziaOggettoDelPool()
-    {
-        GameObject tempObject = Instantiate(oggettoDaCollezionare);
-        tempObject.SetActive(false);
-        pool.Add(tempObject);
-        return tempObject;
-    }
-
-    public GameObject PrendiOggettoDalPool()
-    {
-        if (pool.Count > 0) // Se la lista degli oggetti da utilizzare non è vuota
-        {
-            for (int i = 0; i < pool.Count; i++) // Cicla nella lista di oggetti da utilizzare
+            for (int i = 0; i < item.amountToPool; i++)
             {
-                if (!pool[i].activeInHierarchy) // Se l'i-esimo oggetto è disattivo
-                    return pool[i]; // Restituiscilo al chiamante
-            }
-            // A questo punto del codice non sono stati trovati oggetti liberi da riutilizzare
-            if (ingrandisciPool) // Verifica se è possibile espandere la lista
-            {
-                GameObject obj = IstanziaOggettoDelPool(); //Crea una nuova copia da aggiungere alla lista di oggetti
-                return obj; //Restituiscilo al chiamante
+                GameObject obj = (GameObject)Instantiate(item.objectToPool, Vector3.zero, Quaternion.identity);
+                obj.SetActive(false);
+                pooledObjects.Add(obj);
             }
         }
-        return null; // Se la lista è vuota o se non ci sono oggetti disponibili (senza la possibilità di espandere la lista) restituisci niente al chiamante
+    }
+
+    //Ritorna il primo oggetto copia utilizzabile, eventualmente se il flag è attivo espande la rispettiva lista ed instanzia una nuova copia
+    public GameObject GetPooledObject(string tag)
+    {
+        for (int i = 0; i < pooledObjects.Count; i++)
+        {
+            if (!pooledObjects[i].activeInHierarchy && pooledObjects[i].CompareTag(tag))
+            {
+                return pooledObjects[i];
+            }
+        }
+        foreach (ObjectPoolItem item in itemsToPool)
+        {
+            if (item.objectToPool.CompareTag(tag))
+            {
+                if (item.shouldExpand)
+                {
+                    GameObject obj = (GameObject)Instantiate(item.objectToPool, Vector3.zero, Quaternion.identity);
+                    obj.SetActive(false);
+                    pooledObjects.Add(obj);
+                    return obj;
+                }
+            }
+        }
+        return null;
     }
 }
