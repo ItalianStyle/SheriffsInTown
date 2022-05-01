@@ -24,40 +24,32 @@ public class UI_Manager : MonoBehaviour
     [Tooltip("Colore che possiede la UI del proiettile non utilizzato")]
     [SerializeField] Color bulletColor;
 
-
     Image backgroundGunReload_L;    //Riferimento all'immagine di background per la ricarica della pistola sinistra
     Image backgroundGunReload_R;    //Riferimento all'immagine di background per la ricarica della pistola destra
 
     Image gunReload_L;  //Riferimento all'immagine della ricarica della pistola sinistra
     Image gunReload_R;  //Riferimento all'immagine delle ricarica della pistola destra
-
     TMP_Text munitionsText;
 
-    Image specialSkillImage;    //Riferimento all'immagine dell'abilità speciale
-    
-    Image hpBar;    //Riferimento alla barra HP del personaggio
-
+    Image specialSkillImage;    //Riferimento all'immagine dell'abilità speciale  
+    Image playerHpBar;    //Riferimento alla barra HP del personaggio
+    Image bossHpBar;
+    TMP_Text bossHpText;
     Image actionBar;    //Riferimento alla barra azione
 
     //Riferimento ai simboli della vita del personaggio
     Image[] lifeImages;
-
     Image[] bulletImages;  //Riferimento alle immagini dei proiettili per le munizioni
-
-    //Riferimento al pannello della pausa
-    CanvasGroup pausePanel;
-
-    //Riferimento al pannello della sconfitta
-    CanvasGroup lostPanel;
-
-    CanvasGroup actionPanel;    //Riferimento al pannello azione
-
+    
     CanvasGroup hudPanel;   //Riferimento all'HUD
-
+    CanvasGroup pausePanel;     //Riferimento al pannello della pausa
+    CanvasGroup lostPanel;      //Riferimento al pannello della sconfitta
+    CanvasGroup wonPanel;
+    CanvasGroup actionPanel;    //Riferimento al pannello azione
+    CanvasGroup bossHpBarPanel;    //riferimento al pannello di barra vita del boss
+    
     bool isActionPanelActive;
-
     readonly string HUD_PanelString = "UI/HUD_Panel";
-
     public static UI_Manager instance;
 
     private void OnEnable()
@@ -85,7 +77,6 @@ public class UI_Manager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
     {
         //Prepara i componenti in base alla scena attiva
-
         playBtn = GameObject.FindGameObjectWithTag("PlayBtn").GetComponent<Button>();
         exitBtn = GameObject.FindGameObjectWithTag("ExitBtn").GetComponent<Button>();
         switch (scene.buildIndex)
@@ -100,26 +91,35 @@ public class UI_Manager : MonoBehaviour
 
             case 1:
                 //Prende i riferimenti necessari
-                if(!restartBtn)
-                    restartBtn = GameObject.FindGameObjectWithTag("RestartBtn").GetComponent<Button>();
+                if (!hudPanel)
+                    hudPanel = GameObject.Find(HUD_PanelString).GetComponent<CanvasGroup>();
 
                 if (!pausePanel)
                     pausePanel = GameObject.Find("UI/PausePanel").GetComponent<CanvasGroup>();
 
                 if (!lostPanel) 
                     lostPanel = GameObject.Find("UI/LostPanel").GetComponent<CanvasGroup>();
+                
+                if (!wonPanel)
+                    wonPanel = GameObject.Find("UI/WonPanel").GetComponent<CanvasGroup>();
 
                 if (!actionPanel)
-                    actionPanel = GameObject.Find("UI/ActionPanel").GetComponent<CanvasGroup>();
-
-                if (!hudPanel)
-                    hudPanel = GameObject.Find(HUD_PanelString).GetComponent<CanvasGroup>();
-
-                if (!hpBar)
-                    hpBar = hudPanel.transform.Find("HP_Bar_Background/HP_Bar").GetComponent<Image>();
-
+                    actionPanel = hudPanel.transform.Find("ActionPanel").GetComponent<CanvasGroup>();
+                
                 if (!actionBar)
                     actionBar = actionPanel.transform.Find("Background").GetComponent<Image>();
+                
+                if (!bossHpBarPanel)
+                    bossHpBarPanel = hudPanel.transform.Find("BossHP_BarPanel").GetComponent<CanvasGroup>();            
+                
+                if (!bossHpBar)
+                    bossHpBar = bossHpBarPanel.transform.Find("BossHP_Bar_Background/HP_Bar").GetComponent<Image>();
+                
+                if (!bossHpText)
+                    bossHpText = bossHpBarPanel.transform.Find("BossHpText").GetComponent<TMP_Text>();
+
+                if (!playerHpBar)
+                    playerHpBar = hudPanel.transform.Find("PlayerHP_Bar_Background/HP_Bar").GetComponent<Image>();
 
                 if (!specialSkillImage)
                     specialSkillImage = hudPanel.transform.Find("AbilitaSpecialeBackground/AbilitaSpecialeImmagine").GetComponent<Image>();
@@ -148,16 +148,15 @@ public class UI_Manager : MonoBehaviour
 
                 SetCanvasGroup(pausePanel, false);
                 SetCanvasGroup(lostPanel, false);
-                DisableActionPanel();
+                SetCanvasGroup(wonPanel, false);
                 SetCanvasGroup(hudPanel, true);
+                DisableActionPanel();
+                SetCanvasGroup(bossHpBarPanel, false);
 
                 HandleCursor(GameState.Gameplay);
 
                 //Riprendi il gioco dalla pausa quando il giocatore preme il tasto "Riprendi"
                 playBtn.onClick.AddListener(() => GameStateManager.Instance.SetState(GameState.Gameplay));
-
-                //Ricomincia il gioco da zero se il giocatore preme il tasto "Ricomincia"
-                restartBtn.onClick.AddListener(LoadGameScene);
 
                 //Torna al menu' quando il giocatore preme il tasto "Esci"
                 exitBtn.onClick.AddListener(LoadMenuScene);
@@ -167,11 +166,18 @@ public class UI_Manager : MonoBehaviour
 
                 // Aggiorna i "cuori" mostrati al giocatore quando perde vita o ricomincia il gioco
                 GameManager.OnLivesChanged += UpdatePlayerLifeImages;
+                GameManager.OnGameWon += SetupWonPanel;
+                GameManager.OnGameLost += SetupLostPanel;
 
-                //Aggiorna la barra vita in base alle varie situazioni
-                PlayerHealthSystem.OnPlayerDamaged += UpdateHP_Bar;
-                PlayerHealthSystem.OnPlayerHealed += UpdateHP_Bar;
-                PlayerHealthSystem.OnPlayerHealthChanged += UpdateHP_Bar;
+                //Aggiorna la barra vita del giocatore in base alle varie situazioni
+                PlayerHealthSystem.OnPlayerDamaged += UpdatePlayerHpBar;
+                PlayerHealthSystem.OnPlayerHealed += UpdatePlayerHpBar;
+                PlayerHealthSystem.OnPlayerHealthChanged += UpdatePlayerHpBar;
+
+                //Aggiorna la barra HP del boss quando viene danneggiato
+                EnemyHealthSystem.OnBossDamaged += UpdateBossHpBar;
+
+                EnemyAI.OnPlayerEnteredBossArea += ShowBossHpPanel;
 
                 PlayerShooting.OnPlayerChangedFireMode += UpdateGunsUI_Appearance;
                 PlayerShooting.OnShotFired += UpdateGunsUI_Values;
@@ -190,6 +196,48 @@ public class UI_Manager : MonoBehaviour
 
                 break;
         }
+    }
+
+    private void ShowBossHpPanel()
+    {
+        SetCanvasGroup(bossHpBarPanel, true);
+    }
+
+    private void SetupWonPanel()
+    {
+        SetCanvasGroup(hudPanel, false);
+        //Faccio sparire la barra HP del boss
+        SetCanvasGroup(bossHpBarPanel, false);
+        //Faccio sparire il pannello della pausa perchè appare insieme al pannello di vittoria quando il GameManager mette in pausa il gioco
+        SetCanvasGroup(pausePanel, false);
+
+        restartBtn = wonPanel.transform.Find("RestartBtn").GetComponent<Button>();
+        
+        //Ricomincia il gioco da zero se il giocatore preme il tasto "Ricomincia"
+        restartBtn.onClick.AddListener(LoadGameScene);
+        
+        SetCanvasGroup(wonPanel, true);
+    }
+
+    //Rendi visibile o meno il pannello della sconfitta in base al nuovo stato di gioco
+    private void SetupLostPanel()
+    {
+        SetCanvasGroup(hudPanel, false);
+        //Faccio sparire il pannello della pausa perchè appare insieme al pannello di vittoria quando il GameManager mette in pausa il gioco
+        SetCanvasGroup(pausePanel, false);
+
+        restartBtn = lostPanel.transform.Find("RestartBtn").GetComponent<Button>();
+
+        //Ricomincia il gioco da zero se il giocatore preme il tasto "Ricomincia"
+        restartBtn.onClick.AddListener(LoadGameScene);
+        SetCanvasGroup(lostPanel, true);
+    }
+
+    private void UpdateBossHpBar(int currentHealth, int maxHealth)
+    {
+        float curHP = currentHealth / (float)maxHealth;
+        bossHpBar.fillAmount = curHP;
+        bossHpText.text = $"{curHP*100} %";
     }
 
     private void FillGunsUI(bool isDoubleGunMode, int currentMaxCapacity)
@@ -254,10 +302,14 @@ public class UI_Manager : MonoBehaviour
         if (scene.buildIndex == 1)
         {
             GameManager.OnLivesChanged -= UpdatePlayerLifeImages;
+            GameManager.OnGameWon -= SetupWonPanel;
+            GameManager.OnGameLost -= SetupLostPanel;
             GameStateManager.Instance.OnGameStateChanged -= HandleCursorAndPanels;
-            PlayerHealthSystem.OnPlayerDamaged -= UpdateHP_Bar;
-            PlayerHealthSystem.OnPlayerHealed -= UpdateHP_Bar;
-            PlayerHealthSystem.OnPlayerHealthChanged -= UpdateHP_Bar;
+            PlayerHealthSystem.OnPlayerDamaged -= UpdatePlayerHpBar;
+            PlayerHealthSystem.OnPlayerHealed -= UpdatePlayerHpBar;
+            PlayerHealthSystem.OnPlayerHealthChanged -= UpdatePlayerHpBar;
+            EnemyHealthSystem.OnBossDamaged -= UpdateBossHpBar;
+            EnemyAI.OnPlayerEnteredBossArea -= ShowBossHpPanel;
             PlayerShooting.OnPlayerChangedFireMode -= UpdateGunsUI_Appearance;
             PlayerShooting.OnShotFired -= UpdateGunsUI_Values;
             Lever.OnPlayerNearLever -= EnableActionPanel;
@@ -281,7 +333,7 @@ public class UI_Manager : MonoBehaviour
         Debug.Log("Lo stato del gioco è cambiato -> " + newGameState.ToString());
         HandleCursor(newGameState);
         HandlePausePanel(newGameState);
-        HandleLostPanel(newGameState);
+        //HandleLostPanel(newGameState);
         HandleActionPanel(newGameState);
     }
 
@@ -313,16 +365,18 @@ public class UI_Manager : MonoBehaviour
         }
     }
 
-    private void UpdateHP_Bar(int currentHealth, int maxHealth)
+    private void UpdatePlayerHpBar(int currentHealth, int maxHealth)
     {
+        float curHP = currentHealth / (float)maxHealth;
         //Considera i parametri se il giocatore è in vita e non sta respawnando, altrimenta riempi la barra vita
-        hpBar.fillAmount = currentHealth / (float)maxHealth;        
+        playerHpBar.fillAmount = curHP;
+        playerHpBar.color = Color.LerpUnclamped(Color.red, Color.green, curHP);
     }
 
     //Mostra e libera il cursore quando il gioco e' in pausa e viceversa
     private void HandleCursor(GameState newGameState)
     {
-        bool isGamePaused = newGameState is GameState.Paused || newGameState is GameState.Lost;
+        bool isGamePaused = newGameState is GameState.Paused;
         Cursor.lockState =  isGamePaused ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = isGamePaused;
     }
@@ -331,12 +385,6 @@ public class UI_Manager : MonoBehaviour
     private void HandlePausePanel(GameState newGameState)
     {
         SetCanvasGroup(pausePanel, newGameState is GameState.Paused);
-    }
-
-    //Rendi visibile o meno il pannello della sconfitta in base al nuovo stato di gioco
-    private void HandleLostPanel(GameState newGameState)
-    {
-        SetCanvasGroup(lostPanel, newGameState is GameState.Lost);
     }
 
     private void HandleActionPanel(GameState newGameState)
