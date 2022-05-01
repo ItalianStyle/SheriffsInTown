@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9081267665000915068}
   - component: {fileID: 9081267665000915069}
   m_Layer: 0
-  m_Name: Sparo
+  m_Name: SparoFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
