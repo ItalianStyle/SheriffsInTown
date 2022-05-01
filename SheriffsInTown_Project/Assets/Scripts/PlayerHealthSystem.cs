@@ -50,7 +50,7 @@ public class PlayerHealthSystem : MonoBehaviour
                 if (TotalLives <= 0)
                 {
                     //Gioco perso
-                    GameStateManager.Instance.SetState(GameState.Lost);
+                    GameStateManager.Instance.SetState(GameState.Paused);
                 }
                 else
                 {
