@@ -17,6 +17,7 @@ TagManager:
   - FollowCameraTarget
   - BulletHitFX
   - MuzzleFlashFX
+  - Bullet
   layers:
   - Default
   - TransparentFX
@@ -25,12 +26,12 @@ TagManager:
   - Water
   - UI
   - Terreno
-  - Enemy
+  - Nemico
   - BarrieraPerNemico
   - Prop
   - Pickup
   - Player
-  - 
+  - ProiettileBoss
   - 
   - 
   - 
