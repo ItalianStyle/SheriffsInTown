@@ -113,7 +113,7 @@ MonoBehaviour:
   frequency: 1.2
   rotationDirection: 1
   rotatingSpeed: 45
-  specialSkillBarAmount: 20
-  healthToRecover: 10
+  specialSkillBarAmount: 0
+  healthToRecover: 0
   newMovementSpeed: 0
   newRunMovementSpeed: 0

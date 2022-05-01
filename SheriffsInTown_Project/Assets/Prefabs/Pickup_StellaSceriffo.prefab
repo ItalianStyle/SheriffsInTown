@@ -108,12 +108,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bf677840da3c73459f35ea8d59aa5df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupType: 2
+  pickupType: 3
   amplitude: 0.5
   frequency: 1
   rotationDirection: 1
   rotatingSpeed: 20
   specialSkillBarAmount: 20
-  healthToRecover: 10
+  healthToRecover: 0
   newMovementSpeed: 0
   newRunMovementSpeed: 0
