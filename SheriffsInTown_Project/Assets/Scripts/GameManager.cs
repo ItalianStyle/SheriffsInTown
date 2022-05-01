@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public static event Action<int> OnLivesChanged = delegate { };
     public static event Action OnGameLost = delegate { };
-
+    public static event Action OnGameWon = delegate { };
     public static GameManager instance = null;
 
     //Riferimento al player
@@ -60,6 +60,7 @@ public class GameManager : MonoBehaviour
         {
             player = null;
             PlayerHealthSystem.OnPlayerDead -= HandlePlayerDeath;
+            EnemyHealthSystem.OnBossDead -= WinGame;
         }
     }
 
@@ -70,10 +71,23 @@ public class GameManager : MonoBehaviour
             case 1:
                 TotalLives = 3;
                 player = GameObject.FindGameObjectWithTag("Player");
+                
+                //Condizione di sconfitta
                 PlayerHealthSystem.OnPlayerDead += HandlePlayerDeath;
+
+                //Condizione di vittoria
+                EnemyHealthSystem.OnBossDead += WinGame;
                 break;
         }
-    }    
+    }
+
+    private void WinGame()
+    {
+        //Gioco vinto
+        GameStateManager.Instance.SetState(GameState.Paused);
+
+        OnGameWon?.Invoke();
+    }
 
     void HandlePlayerDeath(GameObject playerObject)
     {
@@ -88,7 +102,7 @@ public class GameManager : MonoBehaviour
         else
         {
             //Gioco perso
-            GameStateManager.Instance.SetState(GameState.Lost);
+            GameStateManager.Instance.SetState(GameState.Paused);
 
             OnGameLost?.Invoke();
         }
