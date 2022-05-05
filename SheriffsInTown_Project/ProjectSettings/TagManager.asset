@@ -18,6 +18,8 @@ TagManager:
   - BulletHitFX
   - MuzzleFlashFX
   - Bullet
+  - AttackSphere
+  - BossTrigger
   layers:
   - Default
   - TransparentFX
