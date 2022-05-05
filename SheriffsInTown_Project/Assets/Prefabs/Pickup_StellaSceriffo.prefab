@@ -16,7 +16,7 @@ GameObject:
   m_Layer: 10
   m_Name: Pickup_StellaSceriffo
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 7422848464349959988, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -113,7 +113,8 @@ MonoBehaviour:
   frequency: 1
   rotationDirection: 1
   rotatingSpeed: 20
-  specialSkillBarAmount: 20
+  specialSkillBarAmount: 25
   healthToRecover: 0
   newMovementSpeed: 0
   newRunMovementSpeed: 0
+  goldGunMaterial: {fileID: 0}

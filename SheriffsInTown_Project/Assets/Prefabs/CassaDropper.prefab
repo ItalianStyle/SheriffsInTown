@@ -14,10 +14,11 @@ GameObject:
   - component: {fileID: 7771865423414846476}
   - component: {fileID: 1245066169}
   - component: {fileID: 24135747375135327}
+  - component: {fileID: -8882699262242477469}
   m_Layer: 9
   m_Name: CassaDropper
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3443629218296621865, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -126,9 +127,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7deee97fe822c846a5911379500a0fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionFX: {fileID: 19800004, guid: b46890100828db6429ff69c322b45893, type: 3}
+  prefabExplosionFX: {fileID: 19800008, guid: 7075bd5fe1480184695a32611c15da57, type: 3}
+  timeToRespawn: 1
   dropHeal: 15
   dropStar: 30
   spawnPositionVerticalOffset: 1
   healPickupPrefab: {fileID: 9207694080675888537, guid: f0b5907a7f0c56540ad56994efaf25ff, type: 3}
   starPickupPrefab: {fileID: 9207694080675888537, guid: 74552903a2e637548a2fb382b7d1d0b7, type: 3}
+--- !u!208 &-8882699262242477469
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 24135747375135325}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.651, y: 0.651, z: 0.651}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0.651, z: 0}
+  m_TimeToStationary: 0.5
