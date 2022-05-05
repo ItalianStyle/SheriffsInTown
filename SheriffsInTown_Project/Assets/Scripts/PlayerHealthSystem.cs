@@ -1,91 +1,110 @@
 using System;
 using UnityEngine;
 
-public class PlayerHealthSystem : MonoBehaviour
+namespace SheriffsInTown
 {
-    public static event Action<int> OnLivesChanged = delegate { };
-    public static event Action<GameObject> OnPlayerDead = delegate { };
-    public static event Action<int, int> OnPlayerDamaged = delegate { };
-    public static event Action<int, int> OnPlayerHealed = delegate { };
-    public static event Action<int, int> OnPlayerHealthChanged = delegate { };
-
-    [SerializeField] int _maxHealth = 100;
-    [SerializeField] int _currentHealth = 100;
-
-    [SerializeField] int _totalLives = 3;
-
-    //Vite a disposizione del giocatore prima di perdere la partita
-    int TotalLives
+    [RequireComponent(typeof(CharacterController))]
+    public class PlayerHealthSystem : MonoBehaviour
     {
-        get => _totalLives;
+        public static event Action<int> OnLivesChanged = delegate { };
+        public static event Action<GameObject> OnPlayerDead = delegate { };
+        public static event Action<int, int> OnPlayerDamaged = delegate { };
+        public static event Action<int, int> OnPlayerHealed = delegate { };
+        public static event Action<int, int> OnPlayerHealthChanged = delegate { };
 
-        set
+        [SerializeField] int _maxHealth = 100;
+        [SerializeField] int _currentHealth = 100;
+
+        [SerializeField] int _totalLives = 3;
+
+        //Vite a disposizione del giocatore prima di perdere la partita
+        int TotalLives
         {
-            _totalLives = value;
-            OnLivesChanged?.Invoke(_totalLives);
-        }
-    }
+            get => _totalLives;
 
-    //Proprietà per gestire la salute del giocatore
-    public int CurrentHealth
-    {
-        get => _currentHealth;
-        set
-        {
-            //Salvo la salute corrente del giocatore in una variabile dummy
-            int oldHP = _currentHealth;
-            _currentHealth = value;
-
-            //Invoco l'evento relativo se è stato ferito o curato
-            if (oldHP > _currentHealth)
-                OnPlayerDamaged?.Invoke(_currentHealth, _maxHealth);
-            else
-                 OnPlayerHealed?.Invoke(_currentHealth, _maxHealth);
-
-            if (_currentHealth <= 0)
+            set
             {
-                OnPlayerDead?.Invoke(gameObject);
-
-                TotalLives--;
-                if (TotalLives <= 0)
-                {
-                    //Gioco perso
-                    GameStateManager.Instance.SetState(GameState.Paused);
-                }
-                else
-                {
-                    //Respawna
-                    RespawnManager.Instance.RespawnPlayer(gameObject);
-                }             
-
-                _currentHealth = _maxHealth;
+                _totalLives = value;
+                OnLivesChanged?.Invoke(_totalLives);
             }
-
-            OnPlayerHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
-    }
-    public bool IsMaxHealth => _currentHealth == _maxHealth;
 
-    public static PlayerHealthSystem instance;
+        //Proprietà per gestire la salute del giocatore
+        public int CurrentHealth
+        {
+            get => _currentHealth;
+            set
+            {
+                //Salvo la salute corrente del giocatore in una variabile dummy
+                int oldHP = _currentHealth;
+                _currentHealth = value;
 
-    private void OnEnable()
-    {
-        instance = this;
-        CurrentHealth = _maxHealth;
-    }
+                //Invoco l'evento relativo se è stato ferito o curato
+                if (oldHP > _currentHealth)
+                    OnPlayerDamaged?.Invoke(_currentHealth, _maxHealth);
+                else
+                    OnPlayerHealed?.Invoke(_currentHealth, _maxHealth);
 
-    private void Start()
-    {
-        Pickup.OnHealPickupTaken += HandlePickup;
-    }
+                if (_currentHealth <= 0)
+                {
+                    OnPlayerDead?.Invoke(gameObject);
 
-    private void OnDestroy()
-    {
-        Pickup.OnHealPickupTaken -= HandlePickup;
-    }
+                    TotalLives--;
+                    if (TotalLives <= 0)
+                    {
+                        //Gioco perso
+                        GameStateManager.Instance.SetState(GameState.Paused);
+                    }
+                    else
+                    {
+                        //Respawna
+                        RespawnManager.Instance.RespawnPlayer(gameObject);
+                    }
 
-    private void HandlePickup(int healthToRecover)
-    {
-        CurrentHealth += healthToRecover;
+                    _currentHealth = _maxHealth;
+                }
+
+                OnPlayerHealthChanged?.Invoke(_currentHealth, _maxHealth);
+            }
+        }
+        public bool IsMaxHealth => _currentHealth == _maxHealth;
+
+        public static PlayerHealthSystem instance;
+
+        CharacterController playerController = null;
+
+        private void Awake()
+        {
+            playerController = GetComponent<CharacterController>();
+        }
+
+        private void OnEnable()
+        {
+            instance = this;
+            CurrentHealth = _maxHealth;
+        }
+
+        private void Start()
+        {
+            Pickup.OnHealPickupTaken += HandlePickup;
+            BossAttackModule.OnBossLanded += DamagePlayer;
+        }
+
+        private void OnDestroy()
+        {
+            Pickup.OnHealPickupTaken -= HandlePickup;
+            BossAttackModule.OnBossLanded -= DamagePlayer;
+        }
+
+        private void DamagePlayer(int landingDamage, float stunTime)
+        {
+            if (playerController.isGrounded)
+                CurrentHealth -= landingDamage;
+        }
+
+        private void HandlePickup(int healthToRecover)
+        {
+            CurrentHealth += healthToRecover;
+        }
     }
 }

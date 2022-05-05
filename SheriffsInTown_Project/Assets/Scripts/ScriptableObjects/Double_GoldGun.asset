@@ -16,4 +16,4 @@ MonoBehaviour:
   maxCapacity: 12
   reloadTime: 1.5
   damage: 20
-  attackRange: 1000
+  attackRange: 100

@@ -2,97 +2,98 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class SpecialSkill : MonoBehaviour
+namespace SheriffsInTown
 {
-    public static event Action<SpecialSkill> OnActivatedSkill = delegate { };
-    public static event Action OnFinishedSkill = delegate { };
-    public static event Action<float, float> OnSpecialSkillBarChangedValue = delegate { };
-
-    //Quando questo numero raggiunge 100 indica che l'abilita' e' pronta ad essere utilizzata
-    float _currentSkillBar;
-    float maxSkillBar = 100;
-
-    [Tooltip("Nuova velocita' di movimento del giocatore")]
-    [SerializeField] float _newMovementSpeed;
-
-    [Tooltip("% di bonus da dare al rateo di fuoco\nConversione: 1 -> 100%")]
-    [SerializeField] float _bonusRateOfFire = 1f;
-
-    [Tooltip("Durata dell'effetto")]
-    [SerializeField] float _duration;
-
-    public bool canActivateSkill;
-    
-    float CurrentSkillBar
+    public class SpecialSkill : MonoBehaviour
     {
-        get => _currentSkillBar;
+        public static event Action<SpecialSkill> OnActivatedSkill = delegate { };
+        public static event Action OnFinishedSkill = delegate { };
+        public static event Action<float, float> OnSpecialSkillBarChangedValue = delegate { };
 
-        set
+        //Quando questo numero raggiunge 100 indica che l'abilita' e' pronta ad essere utilizzata
+        float _currentSkillBar;
+        float maxSkillBar = 100;
+
+        [Tooltip("% di bonus da dare al rateo di fuoco")]
+        [SerializeField] [Min(0)] float _bonusRateOfFire = 100f;
+
+        [Tooltip("Durata dell'effetto")]
+        [SerializeField] float _duration;
+
+        public bool canActivateSkill;
+
+        float CurrentSkillBar
         {
-            _currentSkillBar = Mathf.Clamp(value, 0f, 100f);
-            canActivateSkill = _currentSkillBar == maxSkillBar;
-            OnSpecialSkillBarChangedValue?.Invoke(_currentSkillBar, maxSkillBar);
-        }
-    }
+            get => _currentSkillBar;
 
-    public float RateOfFire_Bonus => _bonusRateOfFire;
-
-    private void Start()
-    {
-        CurrentSkillBar = maxSkillBar;
-        PlayerShooting.OnPlayerStartReloading += CantActivateSkill;
-        PlayerShooting.OnPlayerFinishedReloading += CanActivateSkill;
-        Pickup.OnStarPickupTaken += HandlePickupTaken;
-    }
-
-    private void CanActivateSkill(bool isDoubleGunMode, int currentMaxCapacity)
-    {
-        canActivateSkill = true;
-    }
-
-    private void CantActivateSkill(float reloadTime)
-    {
-        canActivateSkill = false;
-    }
-
-    private void HandlePickupTaken(float specialSkillBarAmount)
-    {
-        CurrentSkillBar += specialSkillBarAmount;
-    }
-
-    private void Update()
-    {
-        if(canActivateSkill && Input.GetKeyDown(KeyCode.Tab) && CurrentSkillBar >= maxSkillBar)
-        {
-            OnActivatedSkill?.Invoke(this);
-            StartCoroutine(SkillCountdown());
-        }
-    }
-
-    private void OnDestroy()
-    {
-        PlayerShooting.OnPlayerStartReloading -= CantActivateSkill;
-        PlayerShooting.OnPlayerFinishedReloading -= CanActivateSkill;
-        Pickup.OnStarPickupTaken -= HandlePickupTaken;
-    }
-
-    private IEnumerator SkillCountdown()
-    {
-        while (CurrentSkillBar > 0)
-        {
-            CurrentSkillBar -= Time.deltaTime * _duration;
-            yield return null;
+            set
+            {
+                _currentSkillBar = Mathf.Clamp(value, 0f, 100f);
+                canActivateSkill = _currentSkillBar == maxSkillBar;
+                OnSpecialSkillBarChangedValue?.Invoke(_currentSkillBar, maxSkillBar);
+            }
         }
 
-        OnFinishedSkill?.Invoke();
-        CurrentSkillBar = 0;
-        //StartCoroutine(SkillReload());
-    }
+        public float RateOfFire_Bonus => _bonusRateOfFire;
 
-    //Coroutine per quick testing (DA RIMUOVERE)
-    IEnumerator SkillReload()
-    {
-        yield return new WaitForSeconds(1f);
-        CurrentSkillBar = maxSkillBar;
+        private void Start()
+        {
+            CurrentSkillBar = maxSkillBar;
+            PlayerShooting.OnPlayerStartReloading += CantActivateSkill;
+            PlayerShooting.OnPlayerFinishedReloading += CanActivateSkill;
+            Pickup.OnStarPickupTaken += HandlePickupTaken;
+        }
+
+        private void CanActivateSkill(bool isDoubleGunMode, int currentMaxCapacity)
+        {
+            canActivateSkill = true;
+        }
+
+        private void CantActivateSkill(float reloadTime)
+        {
+            canActivateSkill = false;
+        }
+
+        private void HandlePickupTaken(float specialSkillBarAmount)
+        {
+            CurrentSkillBar += specialSkillBarAmount;
+        }
+
+        private void Update()
+        {
+            if (canActivateSkill && Input.GetKeyDown(KeyCode.Tab) && CurrentSkillBar >= maxSkillBar)
+            {
+                canActivateSkill = false;
+                OnActivatedSkill?.Invoke(this);
+                StartCoroutine(SkillCountdown());
+            }
+        }
+
+        private void OnDestroy()
+        {
+            PlayerShooting.OnPlayerStartReloading -= CantActivateSkill;
+            PlayerShooting.OnPlayerFinishedReloading -= CanActivateSkill;
+            Pickup.OnStarPickupTaken -= HandlePickupTaken;
+        }
+
+        private IEnumerator SkillCountdown()
+        {
+            while (CurrentSkillBar > 0)
+            {
+                CurrentSkillBar -= Time.deltaTime * _duration;
+                yield return null;
+            }
+
+            OnFinishedSkill?.Invoke();
+            CurrentSkillBar = 0;
+            //StartCoroutine(SkillReload());
+        }
+
+        //Coroutine per quick testing (DA RIMUOVERE)
+        IEnumerator SkillReload()
+        {
+            yield return new WaitForSeconds(1f);
+            CurrentSkillBar = maxSkillBar;
+        }
     }
 }

@@ -1,6 +1,5 @@
 using UnityEngine;
 using Cinemachine;
-using System;
 
 namespace SheriffsInTown
 {
@@ -42,6 +41,7 @@ namespace SheriffsInTown
         Vector3 gravity = new Vector3(0, -9.81f, 0);    //Vettore di gravità standard
 
         bool isShotButtonPressed = false;
+        bool canJump = true;
 
         Camera cam; //Utilizzato per rendere il movimento dipendente dall'orientamento della camera
         CinemachineVirtualCamera virtualCamera; //Utilizzato per disabilitarlo quando si entra in pausa
@@ -49,20 +49,22 @@ namespace SheriffsInTown
         Vector2 rotation = Vector2.zero;
         CharacterController controller; //Utilizzato per muovere il personaggio
 
-        private void Start()
+        private void Awake()
         {
             //Prendo i riferimenti necessari
             cam = Camera.main;
             virtualCamera = GameObject.FindGameObjectWithTag("FollowCamera").GetComponent<CinemachineVirtualCamera>();
             followTransform = transform.Find("FollowTarget");
             controller = GetComponent<CharacterController>();
+        }
 
+        private void Start()
+        {
+            canJump = true;
             //Chiamo il metodo quando il giocatore mette in pausa il gioco o lo riprende
             GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
-
             PlayerShooting.OnPlayerStartReloading += LockPlayerMovement;
             PlayerShooting.OnPlayerFinishedReloading += UnlockPlayerMovement;
-
             Pickup.OnHatPickupTaken += BoostMovementSpeed;
         }
 
@@ -94,7 +96,7 @@ namespace SheriffsInTown
                 //Meccanica di salto
                 if (controller.isGrounded)
                 {
-                    if (Input.GetKeyDown(KeyCode.Space))
+                    if (canJump && Input.GetKeyDown(KeyCode.Space))
                     {
                         //Definisco il vettore massimo per saltare
                         jumpInput.y = jumpForce;
@@ -164,11 +166,9 @@ namespace SheriffsInTown
         {
             //Annullo l'ascolto all'evento della pausa di gioco
             GameStateManager.Instance.OnGameStateChanged -= OnGameStateChanged;
-
-            //GameManager.PlayerWonGame -= () => enabled = false;
-
             PlayerShooting.OnPlayerStartReloading -= LockPlayerMovement;
             PlayerShooting.OnPlayerFinishedReloading -= UnlockPlayerMovement;
+            Pickup.OnHatPickupTaken -= BoostMovementSpeed;
         }
 
         private void SetPlayerMovement(MovementState movementState)

@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class Barrel : MonoBehaviour
 {
-    [SerializeField] ParticleSystem explosionFX;
-
+    [SerializeField] ParticleSystem prefabExplosionFX;
+    [Tooltip("Quanti secondi devono passare per far respawnare l'oggetto? (in secondi)")]
+    [SerializeField] float timeToRespawn;
     MeshRenderer barrelRenderer;
     MeshCollider barrelCollider;
 
@@ -18,7 +19,7 @@ public class Barrel : MonoBehaviour
     public virtual void Destroy()
     {
         //Crea l'effetto dell'esplosione
-        Instantiate(explosionFX, transform);
+        ParticleSystem explosionFX = Instantiate(prefabExplosionFX, transform);
         
         //Disabilito la visuale del barile
         barrelRenderer.enabled = false;
@@ -27,7 +28,17 @@ public class Barrel : MonoBehaviour
         barrelCollider.enabled = false;
 
         explosionFX.Play();
-        //Distruggi il barile dopo l'effetto dell'esplosione
-        Destroy(gameObject, explosionFX.main.duration);
+        Destroy(explosionFX.gameObject, explosionFX.main.duration);
+        StartCoroutine(RespawnObject());
+    }
+
+    IEnumerator RespawnObject()
+    {
+        yield return new WaitForSeconds(timeToRespawn);
+        //Disabilito la visuale del barile
+        barrelRenderer.enabled = true;
+
+        //Disabilito il collider fisico del barile per evitare di attivare l'effetto piu di una volta
+        barrelCollider.enabled = true;
     }
 }

@@ -1,47 +1,44 @@
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
-public class Bullet : MonoBehaviour
+namespace SheriffsInTown
 {
-    [Tooltip("Quanto tempo deve passare prima che sparisca il proiettile")]
-    [SerializeField] [Min(0f)] float lifeTime;
-    int damage;
-
-    Rigidbody bulletRigidbody;
-
-    private void Awake()
+    [RequireComponent(typeof(Rigidbody))]
+    public class Bullet : MonoBehaviour
     {
-        bulletRigidbody = GetComponent<Rigidbody>();
-    }
+        int damage; //Danno da infliggere al giocatore se il proiettile lo colpisce
+        Rigidbody bulletRigidbody;  //Riferimento al rigibody per "spararlo"
 
-    private void OnEnable()
-    {
-        //Quando si attiva il proiettile disattivalo dopo un periodo di tempo
-        StartCoroutine(DisableAfter(lifeTime));
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        Debug.LogWarning($"Mi sono triggerato con {other.name}");
-        if (other.transform.CompareTag("Player"))
+        private void Awake()
         {
-            //Infliggi danni al giocatore
-            other.transform.GetComponent<PlayerHealthSystem>().CurrentHealth -= damage;   
+            bulletRigidbody = GetComponent<Rigidbody>();
         }
-        //In ogni caso disabilita il proiettile
-        gameObject.SetActive(false);
-    }
 
-    public void Fire(float force, int newDamage)
-    {
-        damage = newDamage;
-        bulletRigidbody.AddForce(transform.forward * force);
-    }
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.transform.CompareTag("Player"))
+            {
+                //Infliggi danni al giocatore
+                other.transform.GetComponent<PlayerHealthSystem>().CurrentHealth -= damage;
+            }
+            //In ogni caso disabilita il proiettile
+            gameObject.SetActive(false);
+        }
 
-    IEnumerator DisableAfter(float time)
-    {
-        yield return new WaitForSeconds(time);
-        gameObject.SetActive(false);
+        public void Fire(float force, int newDamage, float lifeTime)
+        {
+            damage = newDamage;     //Passa il danno da BossAttackModule al proiettile
+
+            bulletRigidbody.velocity = Vector3.zero;    //Resetta l'eventuale velocità accumulata precedente
+            bulletRigidbody.AddForce(transform.forward * force);    //Spara il proiettile
+
+            StartCoroutine(DisableAfter(lifeTime));     //Disattiva il proiettile dopo un periodo di tempo
+        }
+
+        IEnumerator DisableAfter(float time)
+        {
+            yield return new WaitForSeconds(time);
+            gameObject.SetActive(false);
+        }
     }
 }
