@@ -41,19 +41,13 @@ namespace SheriffsInTown
         {
             if (other.CompareTag("Player"))
             {
-                Debug.Log($"Player nel collider di {transform.parent.name}");
                 if (IsBossVillage)
                 {
                     OnPlayerEnteredBossArea?.Invoke(other);
                     //Attiva i muri
                     TriggerWalls();
-
-                    //Setta il nuovo checkpoint
                 }
-                else
-                {
-                    OnPlayerEnteredCheckpointTrigger?.Invoke(connectedCheckpoint);
-                }
+                OnPlayerEnteredCheckpointTrigger?.Invoke(connectedCheckpoint); 
             }
         }
 
