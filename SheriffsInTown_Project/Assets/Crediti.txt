@@ -1,0 +1,11 @@
+Modello leva:  Art Notes https://assetstore.unity.com/packages/tools/physics/interactive-physical-door-pack-163249#description
+Modello barriera legno: ANRUVAL_3D_MODELS https://assetstore.unity.com/packages/3d/props/exterior/wooden-barricades-111243#description
+Modello barca di legno: Lukas Bobor https://assetstore.unity.com/packages/3d/vehicles/sea/boats-pack-67293#description
+Modello albero ed erba: TriForge Assets https://assetstore.unity.com/packages/3d/environments/fantasy/fantasy-forest-environment-free-demo-35361#description
+Materiali per il terreno: Epiphany games https://assetstore.unity.com/packages/2d/textures-materials/24-pbr-materials-for-unity-5-51991#description
+Effetti audio: Olivier Girardot https://assetstore.unity.com/packages/audio/sound-fx/free-sound-effects-pack-155776#content
+Skybox: Yuki2022 https://assetstore.unity.com/packages/2d/textures-materials/sky/free-stylized-skybox-212257#description
+Texture erba per il terreno: LowlyPoly https://assetstore.unity.com/packages/2d/textures-materials/floors/hand-painted-grass-texture-78552#description
+Particellari esplosioni: Jean Moreno https://assetstore.unity.com/packages/vfx/particles/war-fx-5669#description
+Testi: TextMeshPro
+Materiale e shader acqua: The Developer https://assetstore.unity.com/packages/vfx/shaders/ultimate-10-shaders-168611#description
