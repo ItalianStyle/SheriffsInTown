@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -52,15 +53,14 @@ namespace SheriffsInTown
         [SerializeField] float timeToExplode;
         [SerializeField] int explosionDamage;
 
-        bool canJump = false;
-        bool grounded = true;
+        bool isJumping = false;
 
         List<Bullet> bullets;
         NavMeshAgent bossNavMeshAgent;
         Rigidbody bossRigidbody;
 
         Transform playerTransform;
-
+        
         private void Awake()
         {
             bossNavMeshAgent = GetComponent<NavMeshAgent>();
@@ -68,69 +68,72 @@ namespace SheriffsInTown
             playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
         }
 
-
         private void Start()
         {
             bullets = new List<Bullet>();
+            isJumping = false;
         }
 
-        private void Update()
+        private void OnCollisionEnter(Collision collision)
         {
-            //Meccanica di salto con il NavMesh Agent: https://stackoverflow.com/questions/66007738/unity-how-to-jump-using-a-navmeshagent-and-click-to-move-logic
-            if (canJump && grounded)
+            //Se il boss collide col terreno
+            if (collision.collider != null && collision.collider.CompareTag("Ground"))
             {
-                canJump = false;
-                grounded = false;
-                if (bossNavMeshAgent.enabled)
+                if (isJumping)
                 {
+                    isJumping = false;
+                    CanPrepareBossForJump(isJump: false, collision.GetContact(0).point);
+                    
+                    OnBossLanded?.Invoke(landingDamage, stunTime);             
+                }
+            }
+        }
+
+        //Meccanica di salto con il NavMesh Agent: https://stackoverflow.com/questions/66007738/unity-how-to-jump-using-a-navmeshagent-and-click-to-move-logic
+        private void Jump()
+        {
+            CanPrepareBossForJump(isJump: true);
+            bossRigidbody.AddRelativeForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            StartCoroutine(SetIsJumping());  
+        }
+
+        //Setto con un piccolo ritardo isJumping = true per non far partire OnCollisionEnter subito
+        IEnumerator SetIsJumping()
+        {
+            yield return new WaitForSeconds(.1f);
+            isJumping = true;
+        }
+
+        private void CanPrepareBossForJump(bool isJump, Vector3 contactPoint = new Vector3())
+        {
+            if (bossNavMeshAgent.enabled)
+            {
+                if (isJump)
                     // set the agents target to where you are before the jump
                     // this stops her before she jumps. Alternatively, you could
                     // cache this value, and set it again once the jump is complete
                     // to continue the original move
                     bossNavMeshAgent.SetDestination(transform.position);
-                    // disable the agent
-                    bossNavMeshAgent.updatePosition = false;
-                    bossNavMeshAgent.updateRotation = false;
-                    bossNavMeshAgent.isStopped = true;
-                }
-                // make the jump
-                bossRigidbody.isKinematic = false;
-                bossRigidbody.useGravity = true;
-                bossRigidbody.AddRelativeForce(Vector3.up * jumpForce, ForceMode.Impulse);
+                
+                else
+                    //Per evitare che il boss snappi alla posizione del navMeshAgent (che viene simulato e non quello visibile)
+                    //https://docs.unity3d.com/ScriptReference/AI.NavMeshAgent-nextPosition.html
+                    bossNavMeshAgent.nextPosition = contactPoint;
+
+                // disable the agent
+                bossNavMeshAgent.updatePosition = !isJump;
+                bossNavMeshAgent.updateRotation = !isJump;
+                bossNavMeshAgent.isStopped = isJump;
             }
-        }
-
-        private void OnCollisionEnter(Collision collision)
-        {
-            if (collision.collider != null && collision.collider.tag == "Ground")
-            {
-                //Quando il boss atterra
-                if (!grounded)
-                {
-                    if (bossNavMeshAgent.enabled)
-                    {
-                        //Per evitare che il boss snappi alla posizione del navMeshAgent (che viene simulato e non quello visibile)
-                        //https://docs.unity3d.com/ScriptReference/AI.NavMeshAgent-nextPosition.html
-                        bossNavMeshAgent.nextPosition = collision.GetContact(0).point;
-
-                        //Torna ad aggiornare il transform seguendo la NavMesh
-                        bossNavMeshAgent.updatePosition = true;
-                        bossNavMeshAgent.updateRotation = true;
-
-                        bossNavMeshAgent.isStopped = false;
-                    }
-                    bossRigidbody.isKinematic = true;
-                    bossRigidbody.useGravity = false;
-                    grounded = true;
-                    OnBossLanded?.Invoke(landingDamage, stunTime);
-                }
-            }
+            // make the jump
+            bossRigidbody.isKinematic = !isJump;
+            bossRigidbody.useGravity = isJump;
         }
 
         public void Attack()
         {
             AttackType attackType = (AttackType)Random.Range(0, 2);
-            StartAttack(AttackType.Jump);
+            StartAttack(attackType);
         }
 
         private void StartAttack(AttackType attackType)
@@ -143,7 +146,7 @@ namespace SheriffsInTown
                     break;
 
                 case AttackType.Jump:
-                    canJump = true;
+                    Jump();
                     break;
 
                 case AttackType.ThrowBarrel:
@@ -161,7 +164,6 @@ namespace SheriffsInTown
             attackingSphere.SetActive(true);
             attackingSphere.GetComponent<AttackSphere>().TriggerBomb(timeToExplode, explosionDamage);
         }
-
         private void ShootBullets()
         {
             //Per ogni proiettile spawnato
