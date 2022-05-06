@@ -182,7 +182,7 @@ namespace SheriffsInTown
                     //Aggiorna la barra HP del boss quando viene danneggiato
                     EnemyHealthSystem.OnBossDamaged += UpdateBossHpBar;
 
-                    BossTrigger.OnPlayerEnteredBossArea += ShowBossHpPanel;
+                    CheckpointTrigger.OnPlayerEnteredBossArea += ShowBossHpPanel;
 
                     PlayerShooting.OnPlayerChangedFireMode += UpdateGunsUI_Appearance;
                     PlayerShooting.OnShotFired += UpdateGunsUI_Values;
@@ -313,7 +313,7 @@ namespace SheriffsInTown
                 PlayerHealthSystem.OnPlayerHealed -= UpdatePlayerHpBar;
                 PlayerHealthSystem.OnPlayerHealthChanged -= UpdatePlayerHpBar;
                 EnemyHealthSystem.OnBossDamaged -= UpdateBossHpBar;
-                BossTrigger.OnPlayerEnteredBossArea -= ShowBossHpPanel;
+                CheckpointTrigger.OnPlayerEnteredBossArea -= ShowBossHpPanel;
                 PlayerShooting.OnPlayerChangedFireMode -= UpdateGunsUI_Appearance;
                 PlayerShooting.OnShotFired -= UpdateGunsUI_Values;
                 Lever.OnPlayerNearLever -= EnableActionPanel;
