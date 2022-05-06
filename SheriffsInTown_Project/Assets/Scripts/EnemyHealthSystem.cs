@@ -42,7 +42,7 @@ namespace SheriffsInTown
                 else
                     OnBossDead?.Invoke();
 
-                Destroy(gameObject);
+                gameObject.SetActive(false);
                 _currentHealth = maxHealth;
             }
         }
