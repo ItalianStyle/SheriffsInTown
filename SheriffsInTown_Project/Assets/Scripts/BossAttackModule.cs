@@ -49,7 +49,9 @@ namespace SheriffsInTown
         [SerializeField] float stunTime;
 
         [Header("Attacco Barile")]
-        [SerializeField] float sphereRadius;
+        [SerializeField] int barrelNumber;
+        [SerializeField] float maxDistanceFromPlayer;
+        [SerializeField] float maxSphereRadius;
         [SerializeField] float timeToExplode;
         [SerializeField] int explosionDamage;
 
@@ -150,17 +152,29 @@ namespace SheriffsInTown
                     break;
 
                 case AttackType.ThrowBarrel:
-                    SpawnAttackCollider();
+                    SpawnAttackColliders();
                     break;
             }
         }
 
-        private void SpawnAttackCollider()
+        private void SpawnAttackColliders()
         {
             GameObject attackingSphere = ObjectPooler.SharedInstance.GetPooledObject("AttackSphere");
             //Prepara la sfera
+            for(int i = 0; i < barrelNumber; i++)
+            {
+                float randomAngle = Random.Range(0f, 359.9f);
+                float randomDistanceFromPlayer = Random.Range(0f, maxDistanceFromPlayer);
+                Vector3 randomDirection = new Vector3(0, Mathf.Sin(Mathf.Deg2Rad * randomAngle), Mathf.Cos(Mathf.Deg2Rad * randomAngle)).normalized;
+
+                Vector3 randomPosition = randomDirection * randomDistanceFromPlayer;
+                randomPosition += playerTransform.position;
+
+            }
+            
+            
             attackingSphere.transform.position = playerTransform.position;
-            attackingSphere.transform.localScale = Vector3.one * sphereRadius;
+            attackingSphere.transform.localScale = Vector3.one * maxSphereRadius;
             attackingSphere.SetActive(true);
             attackingSphere.GetComponent<AttackSphere>().TriggerBomb(timeToExplode, explosionDamage);
         }
