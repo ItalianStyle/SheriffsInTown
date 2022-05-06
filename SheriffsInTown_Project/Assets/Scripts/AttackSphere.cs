@@ -6,6 +6,12 @@ namespace SheriffsInTown
     public class AttackSphere : MonoBehaviour
     {
         PlayerHealthSystem playerHealthSystem;
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = new Color(1,0,0,.5f);
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawSphere(transform.position, .5f);
+        }
 
         public void TriggerBomb(float timeToExplode, int explosionDamage)
         {
