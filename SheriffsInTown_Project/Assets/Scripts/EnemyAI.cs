@@ -56,13 +56,19 @@ namespace SheriffsInTown
 
             PlayerHealthSystem.OnPlayerDead += HandlePlayerDeath;
             GameStateManager.Instance.OnGameStateChanged += HandleEnemyBehaviour;
-            BossTrigger.OnPlayerEnteredBossArea += HandleBossBehaviour;
+            CheckpointTrigger.OnPlayerEnteredBossArea += HandleBossBehaviour;
         }
 
         private void HandleBossBehaviour(Collider playerCollider)
         {
             if (enemyType is EnemyType.Boss)
+            {
+                
                 EngagePlayer(true, playerCollider);
+                StartCoroutine(Reload());
+            }
+                
+
         }
 
         private void HandlePlayerDeath(GameObject player)
@@ -77,7 +83,7 @@ namespace SheriffsInTown
         {
             PlayerHealthSystem.OnPlayerDead -= HandlePlayerDeath;
             GameStateManager.Instance.OnGameStateChanged -= HandleEnemyBehaviour;
-            BossTrigger.OnPlayerEnteredBossArea -= HandleBossBehaviour;
+            CheckpointTrigger.OnPlayerEnteredBossArea -= HandleBossBehaviour;
         }
 
         private void Update()
@@ -122,7 +128,7 @@ namespace SheriffsInTown
                     }
                 }
                 else
-                {
+                {                   
                     //Se il nemico è il boss
                     bossAttacks.Attack();
                     //Ricarica quando finisce l'attacco
@@ -169,7 +175,8 @@ namespace SheriffsInTown
 
         private void HandleEnemyBehaviour(GameState newGameState)
         {
-            agent.isStopped = !(newGameState is GameState.Gameplay);
+            if(agent.enabled)
+                agent.isStopped = !(newGameState is GameState.Gameplay);
             enabled = newGameState is GameState.Gameplay;
         }
 
