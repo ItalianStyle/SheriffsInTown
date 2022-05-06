@@ -12,9 +12,11 @@ namespace SheriffsInTown
         [SerializeField] SpecialSkill playerSpecialSkill;
         [SerializeField] PlayerMovement playerMovement;
         [SerializeField] PlayerShooting playerShooting;
+        [SerializeField] Animator stunEffect;
 
         private void Start()
         {
+            stunEffect.gameObject.SetActive(false);
             BossAttackModule.OnBossLanded += StunPlayer;
         }
 
@@ -31,11 +33,15 @@ namespace SheriffsInTown
 
         IEnumerator StunPlayer(float stunTime)
         {
+            stunEffect.gameObject.SetActive(true);
+            stunEffect.SetBool("PlayStunEffect", true);
             playerSpecialSkill.enabled = false;
             playerMovement.enabled = false;
             playerShooting.enabled = false;
 
             yield return new WaitForSeconds(stunTime);
+            stunEffect.gameObject.SetActive(false);
+            stunEffect.SetBool("PlayStunEffect", false);
             playerSpecialSkill.enabled = true;
             playerMovement.enabled = true;
             playerShooting.enabled = true;
