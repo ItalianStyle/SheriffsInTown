@@ -45,6 +45,8 @@ namespace SheriffsInTown
 
         CanvasGroup hudPanel;   //Riferimento all'HUD
         CanvasGroup pausePanel;     //Riferimento al pannello della pausa
+        CanvasGroup optionsPanel;
+        CanvasGroup leaveQuestionPanel;
         CanvasGroup lostPanel;      //Riferimento al pannello della sconfitta
         CanvasGroup wonPanel;
         CanvasGroup actionPanel;    //Riferimento al pannello azione
@@ -98,6 +100,12 @@ namespace SheriffsInTown
 
                     if (!pausePanel)
                         pausePanel = GameObject.Find("UI/PausePanel").GetComponent<CanvasGroup>();
+
+                    if(!optionsPanel)
+                        optionsPanel = GameObject.Find("UI/OptionsPanel").GetComponent<CanvasGroup>();
+
+                    if (!leaveQuestionPanel)
+                        leaveQuestionPanel = GameObject.Find("UI/QuestionPanel").GetComponent<CanvasGroup>();
 
                     if (!lostPanel)
                         lostPanel = GameObject.Find("UI/LostPanel").GetComponent<CanvasGroup>();
@@ -390,6 +398,11 @@ namespace SheriffsInTown
         private void HandlePausePanel(GameState newGameState)
         {
             SetCanvasGroup(pausePanel, newGameState is GameState.Paused);
+            if (newGameState is GameState.Gameplay)
+            {
+                SetCanvasGroup(optionsPanel, false);
+                SetCanvasGroup(leaveQuestionPanel, false);
+            }
         }
 
         private void HandleActionPanel(GameState newGameState)
