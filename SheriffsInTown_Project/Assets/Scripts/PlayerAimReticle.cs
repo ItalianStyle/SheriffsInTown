@@ -19,7 +19,7 @@ namespace SheriffsInTown
             cam = Camera.main;
             playerShooting = GetComponent<PlayerShooting>();
 
-            reticle.enabled = false;
+            //reticle.enabled = false;
             StartCoroutine(CheckReticle());
         }
 
@@ -29,8 +29,12 @@ namespace SheriffsInTown
             while (true)
             {
                 Ray ray = cam.ScreenPointToRay(screenCenter);
-                reticle.enabled = Physics.Raycast(ray, playerShooting.AttackRange, playerShooting.LayerMask);
-
+                reticle.enabled = Physics.Raycast(ray, out RaycastHit info, playerShooting.AttackRange, playerShooting.LayerMask);
+                
+                if(reticle.enabled)
+                {
+                    reticle.color = info.collider.CompareTag("Enemy") ? Color.red : Color.white;
+                }
                 yield return new WaitForSeconds(.1f);
             }
         }
