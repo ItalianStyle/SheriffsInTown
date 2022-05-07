@@ -172,7 +172,6 @@ namespace SheriffsInTown
                     attackingSphere.transform.position = info.point + (Vector3.up * .1f);
                     
                     attackingSphere.SetActive(true);
-
                 }
             }
             
