@@ -101,10 +101,10 @@ namespace SheriffsInTown
                         //Definisco il vettore massimo per saltare
                         jumpInput.y = jumpForce;
                     }
-                }
 
-                //Meccanica di corsa quando il giocatore preme lo shift sinistro
-                SetPlayerMovement(Input.GetKey(KeyCode.LeftShift) ? MovementState.Run : MovementState.Walk);              
+                    //Meccanica di corsa quando il giocatore preme lo shift sinistro
+                    SetPlayerMovement(Input.GetKey(KeyCode.LeftShift) ? MovementState.Run : MovementState.Walk);
+                }                       
             }
 
             #region Follow Transform rotation
