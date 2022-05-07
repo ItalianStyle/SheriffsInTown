@@ -6,6 +6,13 @@ namespace SheriffsInTown
     public class AttackSphere : MonoBehaviour
     {
         PlayerHealthSystem playerHealthSystem;
+        GameObject barrel;
+        [SerializeField] float initialBarrelHeight;
+        [SerializeField] float initialScale;
+        [SerializeField] float finalScale;
+        [SerializeField] float timeToExplode;
+        [SerializeField] int explosionDamage;
+        
         private void OnDrawGizmos()
         {
             Gizmos.color = new Color(1,0,0,.5f);
@@ -13,25 +20,10 @@ namespace SheriffsInTown
             Gizmos.DrawSphere(transform.position, .5f);
         }
 
-        public void TriggerBomb(float timeToExplode, int explosionDamage)
+        private void OnEnable()
         {
-            StartCoroutine(StartExplosionCountdown(timeToExplode, explosionDamage));
-        }
-
-        IEnumerator StartExplosionCountdown(float timeToExplode, int explosionDamage)
-        {
-            float timer = timeToExplode;
-            while (timer > 0)
-            {
-                timer -= Time.deltaTime;
-                yield return null;
-            }
-            if (playerHealthSystem)
-            {
-                playerHealthSystem.CurrentHealth -= explosionDamage;
-            }
-
-            gameObject.SetActive(false);
+            barrel = ObjectPooler.SharedInstance.GetPooledObject("FxTemporaire");
+            StartCoroutine(StartAreaAnimation());
         }
 
         private void OnTriggerEnter(Collider other)
@@ -48,6 +40,38 @@ namespace SheriffsInTown
             {
                 playerHealthSystem = null;
             }
+        }
+
+        IEnumerator StartAreaAnimation()
+        {
+            Vector3 initialPosition = transform.position + Vector3.up * initialBarrelHeight;
+            barrel.SetActive(true);
+            for(float time = 0f; time < timeToExplode; time += Time.deltaTime)
+            {
+                float progress = time / timeToExplode;
+                transform.localScale = Vector3.Lerp(Vector3.one * initialScale, Vector3.one * finalScale, progress);
+                barrel.transform.position = Vector3.Lerp(initialPosition, transform.position, progress);
+                yield return null;
+            }
+            StartCoroutine(HoldScale());
+        }
+
+        IEnumerator HoldScale()
+        {
+            yield return new WaitForSeconds(1);
+            Explode();
+        }
+
+        void Explode()
+        {
+            if (playerHealthSystem)
+            {
+                playerHealthSystem.CurrentHealth -= explosionDamage;
+            }
+            playerHealthSystem = null;
+            ShootFX_Manager.PlayBigExplosionFX(transform.position);
+            barrel.SetActive(false);
+            gameObject.SetActive(false);
         }
     }
 }
