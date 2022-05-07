@@ -17,18 +17,14 @@ public class Barrel : MonoBehaviour
 
     //Chiamato dal PlayerShooting quando colpisce il barile
     public virtual void Destroy()
-    {
-        //Crea l'effetto dell'esplosione
-        ParticleSystem explosionFX = Instantiate(prefabExplosionFX, transform);
-        
+    {       
         //Disabilito la visuale del barile
         barrelRenderer.enabled = false;
 
         //Disabilito il collider fisico del barile per evitare di attivare l'effetto piu di una volta
         barrelCollider.enabled = false;
 
-        explosionFX.Play();
-        Destroy(explosionFX.gameObject, explosionFX.main.duration);
+        ShootFX_Manager.PlayBigExplosionFX(transform.position);
         StartCoroutine(RespawnObject());
     }
 
