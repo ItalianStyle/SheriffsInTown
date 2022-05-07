@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class Barrel : MonoBehaviour
 {
-    [SerializeField] ParticleSystem prefabExplosionFX;
     [Tooltip("Quanti secondi devono passare per far respawnare l'oggetto? (in secondi)")]
     [SerializeField] float timeToRespawn;
     MeshRenderer barrelRenderer;
