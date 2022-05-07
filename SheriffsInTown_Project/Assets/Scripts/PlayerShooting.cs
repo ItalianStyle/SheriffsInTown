@@ -247,8 +247,9 @@ namespace SheriffsInTown
                 OnGunShotFire?.Invoke(CurrentShootingMode.isDoubleGunType, isRightGunShoot);
 
                 if (hit.collider.TryGetComponent(out EnemyHealthSystem healthSys))
+                {
                     healthSys.TakeDamage(_currentDamage);
-
+                }
                 else if (hit.collider.TryGetComponent(out Barrel barrel))
                 {
                     barrel.Destroy();
