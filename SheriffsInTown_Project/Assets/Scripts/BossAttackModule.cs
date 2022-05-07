@@ -51,9 +51,6 @@ namespace SheriffsInTown
         [Header("Attacco Barile")]
         [SerializeField] int barrelNumber;
         [SerializeField] float maxDistanceFromPlayer;
-        [SerializeField] float maxSphereRadius;
-        [SerializeField] float timeToExplode;
-        [SerializeField] int explosionDamage;
 
         bool isJumping = false;
 
@@ -159,24 +156,26 @@ namespace SheriffsInTown
 
         private void SpawnAttackColliders()
         {
-            GameObject attackingSphere = ObjectPooler.SharedInstance.GetPooledObject("AttackSphere");
             //Prepara la sfera
             for(int i = 0; i < barrelNumber; i++)
             {
+                GameObject attackingSphere = ObjectPooler.SharedInstance.GetPooledObject("AttackSphere");
                 float randomAngle = Random.Range(0f, 359.9f);
                 float randomDistanceFromPlayer = Random.Range(0f, maxDistanceFromPlayer);
-                Vector3 randomDirection = new Vector3(0, Mathf.Sin(Mathf.Deg2Rad * randomAngle), Mathf.Cos(Mathf.Deg2Rad * randomAngle)).normalized;
+                Vector2 randomDirection = new Vector2(Mathf.Cos(Mathf.Deg2Rad * randomAngle), Mathf.Sin(Mathf.Deg2Rad * randomAngle)).normalized;
 
-                Vector3 randomPosition = randomDirection * randomDistanceFromPlayer;
+                Vector3 randomPosition = new Vector3(randomDirection.x, 0, randomDirection.y) * randomDistanceFromPlayer;
                 randomPosition += playerTransform.position;
+                if (Physics.Raycast(randomPosition, -Vector3.up, out RaycastHit info, Mathf.Infinity))
+                {
+                    //Stabilisci la posizione dove spawnare l'area
+                    attackingSphere.transform.position = info.point + (Vector3.up * .1f);
+                    
+                    attackingSphere.SetActive(true);
 
+                }
             }
             
-            
-            attackingSphere.transform.position = playerTransform.position;
-            attackingSphere.transform.localScale = Vector3.one * maxSphereRadius;
-            attackingSphere.SetActive(true);
-            attackingSphere.GetComponent<AttackSphere>().TriggerBomb(timeToExplode, explosionDamage);
         }
         private void ShootBullets()
         {
