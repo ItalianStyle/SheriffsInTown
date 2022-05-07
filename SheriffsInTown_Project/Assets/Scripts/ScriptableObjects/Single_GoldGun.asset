@@ -15,5 +15,5 @@ MonoBehaviour:
   isDoubleGunType: 0
   maxCapacity: 6
   reloadTime: 0.5
-  damage: 30
+  damage: 35
   attackRange: 50
