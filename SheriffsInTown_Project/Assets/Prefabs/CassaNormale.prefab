@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4373475090244939586}
   - component: {fileID: 1969554241156635528}
   - component: {fileID: 7771865423414846476}
+  - component: {fileID: 7319222049419957102}
   m_Layer: 9
   m_Name: CassaNormale
   m_TagString: Untagged
@@ -96,3 +97,19 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 1502882567029671163, guid: 25979e5f2d95f0741a4fec4cf56ddaad, type: 3}
+--- !u!208 &7319222049419957102
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 24135747375135325}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.651, y: 0.651, z: 0.651}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0.651, z: 0}
+  m_TimeToStationary: 0.5
