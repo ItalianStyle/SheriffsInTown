@@ -31,6 +31,16 @@ public class ShootFX_Manager : MonoBehaviour
         PlayParticles(particles);
     }
 
+    public static void PlayBigExplosionFX(Vector3 spawnPoint)
+    {
+        ParticleSystem particles = ObjectPooler.SharedInstance.GetPooledObject("BigExplosionFX").GetComponent<ParticleSystem>();
+        
+        //Posiziona il particellare sulla bocca di fuoco destra o sinistra in base al bool
+        particles.transform.position = spawnPoint;
+
+        PlayParticles(particles);
+    }
+
     IEnumerator DisableParticles(GameObject particleSystem, float timeToWait)
     {
         yield return new WaitForSeconds(timeToWait);
