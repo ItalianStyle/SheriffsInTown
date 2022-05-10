@@ -63,12 +63,9 @@ namespace SheriffsInTown
         {
             if (enemyType is EnemyType.Boss)
             {
-                
                 EngagePlayer(true, playerCollider);
                 StartCoroutine(Reload());
             }
-                
-
         }
 
         private void HandlePlayerDeath(GameObject player)
@@ -183,7 +180,7 @@ namespace SheriffsInTown
         private void EngagePlayer(bool canChasePlayer, Collider other = null)
         {
             playerDetected = canChasePlayer;
-            enemyMaterial.color = canChasePlayer ? Color.green : initialColor;
+            enemyMaterial.color = canChasePlayer ? Color.red : initialColor;
             playerHealth = canChasePlayer ? other.GetComponent<PlayerHealthSystem>() : null;
         }
     }
