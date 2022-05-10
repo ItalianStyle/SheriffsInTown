@@ -177,9 +177,8 @@ MonoBehaviour:
   jumpForce: 10
   landingDamage: 20
   stunTime: 2
-  sphereRadius: 20
-  timeToExplode: 2
-  explosionDamage: 20
+  barrelNumber: 15
+  maxDistanceFromPlayer: 20
 --- !u!1 &3095471558874592886
 GameObject:
   m_ObjectHideFlags: 0
