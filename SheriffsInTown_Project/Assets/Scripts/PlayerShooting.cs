@@ -116,8 +116,6 @@ namespace SheriffsInTown
             GameStateManager.Instance.OnGameStateChanged += OnGameStateChanged;
         }
 
-
-
         void Update()
         {
             if (CurrentCapacity < _currentMaxCapacity && Input.GetKeyDown(KeyCode.R))
@@ -219,33 +217,31 @@ namespace SheriffsInTown
 
         void Shoot()
         {
+            //Effetti visivi per il muzzle flash della pistola
+            Transform currentMuzzleFlash;
+            if (CurrentShootingMode.isDoubleGunType)
+            {
+                currentMuzzleFlash = isRightGunShoot ? muzzleFlashDXTransform : muzzleFlashSXTransform;
+                isRightGunShoot = !isRightGunShoot;
+            }
+            else
+            {
+                currentMuzzleFlash = muzzleFlashDXTransform;
+                isRightGunShoot = false;
+            }
+            ShootFX_Manager.PlayMuzzleFlashFX(currentMuzzleFlash);            
+
+            //Fai partire l'audio dello sparo
+            OnGunShotFire?.Invoke(CurrentShootingMode.isDoubleGunType, isRightGunShoot);
+
             //http://codesaying.com/understanding-screen-point-world-point-and-viewport-point-in-unity3d/
             Ray ray = cam.ScreenPointToRay(screenCenter);
 
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit, _currentAttackRange, _layerMask))
+            if (Physics.Raycast(ray, out RaycastHit hit, _currentAttackRange, _layerMask))
             {
                 //Debug.Log($"Colpito --> {hit.transform.name}");
                 //Debug.DrawRay(ray.origin, ray.direction.normalized * (ray.origin - hit.point).magnitude, Color.red, 2f);
-
-                Transform currentMuzzleFlash;
-                if (CurrentShootingMode.isDoubleGunType)
-                {
-                    currentMuzzleFlash = isRightGunShoot ? muzzleFlashDXTransform : muzzleFlashSXTransform;
-                    isRightGunShoot = !isRightGunShoot;
-                }
-                else
-                {
-                    currentMuzzleFlash = muzzleFlashDXTransform;
-                    isRightGunShoot = false;
-                }
-                ShootFX_Manager.PlayMuzzleFlashFX(currentMuzzleFlash);
                 ShootFX_Manager.PlayBulletHitFX(hit.point);
-
-                //Fai partire l'audio dello sparo
-                OnGunShotFire?.Invoke(CurrentShootingMode.isDoubleGunType, isRightGunShoot);
-
                 if (hit.collider.TryGetComponent(out EnemyHealthSystem healthSys))
                 {
                     healthSys.TakeDamage(_currentDamage);
